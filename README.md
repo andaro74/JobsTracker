@@ -1,6 +1,7 @@
 ## Jobs Tracker Spring WebFlux Project
 
-Demonstrate a Jobs Tracker REST application using Spring WebFlux including a suggested folder solution to separate layers.
+Demonstrate a Jobs Tracker REST application using Spring WebFlux and JAVA including a suggested folder solution to separate layers.
+There is a version in .NET using C# https://github.com/andaro74/JobSolution
 
 <img width="1519" height="1024" alt="image" src="https://github.com/user-attachments/assets/9ea719d5-ea87-44c3-a207-1504170f5be9" />
 
