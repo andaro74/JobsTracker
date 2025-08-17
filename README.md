@@ -1,2 +1,5 @@
-Jobs Tracker Spring WebFlux Project
+## Jobs Tracker Spring WebFlux Project
+
 Demonstrate a Jobs Tracker REST application using Spring WebFlux including a suggested folder solution to separate layers.
+
+<img width="1519" height="1024" alt="image" src="https://github.com/user-attachments/assets/9ea719d5-ea87-44c3-a207-1504170f5be9" />
