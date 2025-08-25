@@ -1,6 +1,7 @@
 package com.andaro.jobstracker.controller;
 
 import com.andaro.jobstracker.dto.JobItemRequestDTO;
+import com.andaro.jobstracker.repository.JobsRepository;
 import com.andaro.jobstracker.service.JobsService;
 import com.andaro.jobstracker.dto.JobItemDTO;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,6 @@ import java.util.UUID;
 public class JobsController {
 
     private final JobsService service;
-
 
     public JobsController(JobsService jobsService){
         this.service = jobsService;
