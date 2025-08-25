@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  springboot-app:
+    image: jobs-tracker:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobs-tracker-container
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    environment:
+      - AWS_ACCESS_KEY_ID=dummy
+      - AWS_SECRET_ACCESS_KEY=dummy
+      - DYNAMODB_ENDPOINT=http://dynamodb-local:8000
+    networks:
+      - jobs-tracker-network
+    depends_on:
+      - dynamodb-local
+
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-local-container
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -inMemory -sharedDb"
+    networks:
+      - jobs-tracker-network
+
+networks:
+  jobs-tracker-network:
+    driver: bridge

@@ -1,6 +1,5 @@
 package com.andaro.jobstracker.controller;
 
-
 import com.andaro.jobstracker.dto.JobItemRequestDTO;
 import com.andaro.jobstracker.service.JobsService;
 import com.andaro.jobstracker.dto.JobItemDTO;
