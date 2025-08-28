@@ -2,7 +2,7 @@ package com.andaro.jobstracker.dto;
 
 import java.util.Date;
 
-public record JobItemRequestDTO(
+public record CreateJobItemDTO(
         String jobName,
         String jobDescription,
         String assignedTo,

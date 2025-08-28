@@ -1,7 +1,6 @@
 package com.andaro.jobstracker.controller;
 
-import com.andaro.jobstracker.dto.JobItemRequestDTO;
-import com.andaro.jobstracker.repository.JobsRepository;
+import com.andaro.jobstracker.dto.CreateJobItemDTO;
 import com.andaro.jobstracker.service.JobsService;
 import com.andaro.jobstracker.dto.JobItemDTO;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class JobsController {
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<JobItemDTO>> UpdateJob(@PathVariable UUID id, @RequestBody JobItemRequestDTO item){
+    public Mono<ResponseEntity<JobItemDTO>> UpdateJob(@PathVariable UUID id, @RequestBody CreateJobItemDTO item){
         return service.UpdateJob(id, item)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.OK))
                 .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
@@ -44,7 +43,7 @@ public class JobsController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<JobItemDTO>> CreateJob(@RequestBody JobItemRequestDTO item){
+    public Mono<ResponseEntity<JobItemDTO>> CreateJob(@RequestBody CreateJobItemDTO item){
         return service.CreateJob(item)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.CREATED));
     }

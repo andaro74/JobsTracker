@@ -1,34 +1,20 @@
 package com.andaro.jobstracker.model;
 
 import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
 
-public class JobItem {
+public class JobItemRequest {
 
-    private UUID id;
     private  String jobName;
     private  String jobDescription;
     private  String assignedTo;
     private  String customerName;
     private  String jobStatus;
-    private Date expectedCompletion;
+    private  Date expectedCompletion;
     private  Date actualCompletion;
     private  Date createdOn;
     private  Date modifiedOn;
 
-    public JobItem(UUID id, String jobName){
-        this.id=id;
-        this.jobName=jobName;
-    }
-
-    public UUID getId(){
-        return id;
-    }
-
-    public void setId(UUID value){
-        this.id=value;
-    }
+    public JobItemRequest(){}
 
     public String getJobName(){
         return jobName;
@@ -103,6 +89,5 @@ public class JobItem {
     public void setModifiedOn(Date value){
         this.modifiedOn=value;
     }
-
 
 }

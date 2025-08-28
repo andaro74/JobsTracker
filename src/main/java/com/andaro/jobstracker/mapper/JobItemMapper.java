@@ -1,11 +1,12 @@
 package com.andaro.jobstracker.mapper;
 
+import com.andaro.jobstracker.dto.CreateJobItemDTO;
 import com.andaro.jobstracker.dto.JobItemDTO;
 import com.andaro.jobstracker.model.JobItem;
+import com.andaro.jobstracker.model.JobItemRequest;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -16,7 +17,10 @@ public interface JobItemMapper {
     //@Mapping(target = "active", constant = "true") //default value
     JobItem toModel(JobItemDTO dto);
 
+    JobItem toModel(CreateJobItemDTO dto);
+
     JobItemDTO toDTO(JobItem model);
+
 
     List<JobItemDTO> toDTOs(List<JobItem> models);
 
