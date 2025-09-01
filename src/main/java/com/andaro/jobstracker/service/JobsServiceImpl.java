@@ -45,7 +45,7 @@ public class JobsServiceImpl implements JobsService {
 
     public Mono<JobItemDTO> CreateJob(CreateJobItemDTO item){
         JobItem jobItem= jobItemMapper.toModel(item);
-        Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem);
+        Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem).thenReturn(jobItem);
 
         return jobItemResult.map(jobItemMapper::toDTO);
     }

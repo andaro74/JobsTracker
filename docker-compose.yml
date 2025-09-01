@@ -29,6 +29,7 @@ services:
     container_name: dynamodb-local-container
     ports:
       - "8000:8000"
+    restart: always
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"

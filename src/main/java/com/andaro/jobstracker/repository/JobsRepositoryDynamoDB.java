@@ -38,7 +38,7 @@ public class JobsRepositoryDynamoDB implements JobsRepository {
         return Flux.just(jobItems);
     }
 
-    public Mono<JobItem> saveJob(JobItem jobItem) {
+    public Mono<PutItemResponse> saveJob(JobItem jobItem) {
 
         HashMap<String, AttributeValue> itemValues = new HashMap<String, AttributeValue>();
 
@@ -57,7 +57,7 @@ public class JobsRepositoryDynamoDB implements JobsRepository {
             //https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/java_dynamodb_code_examples.html
             CompletableFuture<PutItemResponse> response= this.dynamoDbAsyncClient.putItem(request);
 
-            return  Mono.fromFuture(response).thenReturn(item);
+            return  Mono.fromFuture(response);
 
 
 
