@@ -17,10 +17,13 @@ public class JobsServiceImpl implements JobsService {
 
     private final JobItemMapper jobItemMapper;
     private final JobsRepository jobsRepository;
+    private final JobsEventPublisher jobsEventPublisher;
 
-    public JobsServiceImpl(JobItemMapper jobItemMapper, JobsRepository jobsRepository){
-        this.jobItemMapper=jobItemMapper;
-        this.jobsRepository=jobsRepository;
+    public JobsServiceImpl(JobItemMapper jobItemMapper, JobsRepository jobsRepository, JobsEventPublisher jobsEventPublisher){
+        this.jobItemMapper = jobItemMapper;
+        this.jobsRepository = jobsRepository;
+        this.jobsEventPublisher = jobsEventPublisher;
+
     }
 
     public Mono<JobItemDTO> GetJob(UUID id){
@@ -46,7 +49,11 @@ public class JobsServiceImpl implements JobsService {
     public Mono<JobItemDTO> CreateJob(CreateJobItemDTO item){
         JobItem jobItem= jobItemMapper.toModel(item);
         Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem).thenReturn(jobItem);
-
+        System.out.println("---------------------------------");
+        System.out.println(jobItemResult);
+        System.out.println("---------------------------------");
+        //Publish the job event to listeners
+        jobsEventPublisher.publishJobsCreatedEvent();
         return jobItemResult.map(jobItemMapper::toDTO);
     }
 

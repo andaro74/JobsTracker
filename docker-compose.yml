@@ -17,10 +17,12 @@ services:
       - DYNAMODB_ENDPOINT=http://dynamodb-local:8000
       - DYNAMODB_DATABASE='Jobs'
       - DYNAMODB_TABLE='JobItem'
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9093
     networks:
       - jobs-tracker-network
     depends_on:
       - dynamodb-local
+      - kafka
     links:
       - "dynamodb-local"
 
