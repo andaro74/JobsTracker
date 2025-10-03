@@ -48,12 +48,15 @@ public class JobsServiceImpl implements JobsService {
 
     public Mono<JobItemDTO> CreateJob(CreateJobItemDTO item){
         JobItem jobItem= jobItemMapper.toModel(item);
-        Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem).thenReturn(jobItem);
-        System.out.println("---------------------------------");
-        System.out.println(jobItemResult);
-        System.out.println("---------------------------------");
-        //Publish the job event to listeners
-        jobsEventPublisher.publishJobsCreatedEvent();
+        Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem).thenReturn(jobItem).doOnSuccess(jobItem1 ->
+                {
+                    System.out.println("Publishing " + jobItem1);
+                    //Publish the job event to listeners
+                    jobsEventPublisher.publishJobsCreatedEvent(UUID.randomUUID().toString(), jobItem1);
+                }
+        );
+
+
         return jobItemResult.map(jobItemMapper::toDTO);
     }
 

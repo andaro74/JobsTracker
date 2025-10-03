@@ -1,21 +1,36 @@
 package com.andaro.jobstracker.service;
 
+import com.andaro.jobstracker.model.JobItem;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JobsEventPublisherImpl implements JobsEventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, JobItemCreateEvent> kafkaTemplate;
     private static final String JOBS_TOPIC = "jobs-created-event";
 
-    public JobsEventPublisherImpl(KafkaTemplate<String, Object> kafkaTemplate){
+    public JobsEventPublisherImpl(KafkaTemplate<String, JobItemCreateEvent> kafkaTemplate){
         this.kafkaTemplate=kafkaTemplate;
     }
 
-    public void publishJobsCreatedEvent(){
+    public record JobItemCreateEvent(
+        String jobName,
+        String jobDescription)
+        {};
+
+    public void publishJobsCreatedEvent(String key, JobItem jobItem){
         try {
-            kafkaTemplate.send(JOBS_TOPIC, "id:123", "job order");
+            System.out.println("--- Begin jobItem ------");
+            System.out.println(jobItem.getJobName());
+            System.out.println(jobItem.getJobDescription());
+            System.out.println("--- End jobItem ------");
+            JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(jobItem.getJobName(),jobItem.getJobDescription());
+            System.out.println("--- Begin itemCreateEvent ------");
+            System.out.println(itemCreateEvent.jobName());
+            System.out.println(itemCreateEvent.jobDescription());
+            System.out.println("--- End itemCreateEvent ------");
+            kafkaTemplate.send(JOBS_TOPIC, key, itemCreateEvent);
             System.out.println("Successfully published the Job");
         } catch (Exception ex){
             System.err.println("Failed to publish Jobs event publisher.");
