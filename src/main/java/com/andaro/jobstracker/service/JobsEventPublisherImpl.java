@@ -21,15 +21,7 @@ public class JobsEventPublisherImpl implements JobsEventPublisher {
 
     public void publishJobsCreatedEvent(String key, JobItem jobItem){
         try {
-            System.out.println("--- Begin jobItem ------");
-            System.out.println(jobItem.getJobName());
-            System.out.println(jobItem.getJobDescription());
-            System.out.println("--- End jobItem ------");
             JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(jobItem.getJobName(),jobItem.getJobDescription());
-            System.out.println("--- Begin itemCreateEvent ------");
-            System.out.println(itemCreateEvent.jobName());
-            System.out.println(itemCreateEvent.jobDescription());
-            System.out.println("--- End itemCreateEvent ------");
             kafkaTemplate.send(JOBS_TOPIC, key, itemCreateEvent);
             System.out.println("Successfully published the Job");
         } catch (Exception ex){

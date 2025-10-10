@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -14,67 +13,48 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Repository
 public class JobsRepositoryDynamoDB implements JobsRepository {
 
-    private final DynamoDbAsyncClient dynamoDbAsyncClient;
+    private final DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient;
+    //private final DynamoDbAsyncClient dynamoDbAsyncClient;
+    static final TableSchema<JobItem> jobItemTableSchema = TableSchema.fromBean(JobItem.class);
 
-    public JobsRepositoryDynamoDB(DynamoDbAsyncClient dynamoDbAsyncClient){
-        this.dynamoDbAsyncClient=dynamoDbAsyncClient;
-
+    public JobsRepositoryDynamoDB(DynamoDbAsyncClient dynamoDbAsyncClient, DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient){
+        this.dynamoDbEnhancedAsyncClient=dynamoDbEnhancedAsyncClient;
+        //this.dynamoDbAsyncClient=dynamoDbAsyncClient;
     }
 
     public Flux<List<JobItem>> findAllJobs(){
         List<JobItem> jobItems = new ArrayList<JobItem>();
-        jobItems.add(new JobItem(UUID.randomUUID(), "BasicCleaning"));
-        jobItems.add(new JobItem(UUID.randomUUID(), "StandardCleaning"));
-        jobItems.add(new JobItem(UUID.randomUUID(), "ProCleaning"));
+
+        JobItem jobItem=new JobItem();
+        jobItem.setId(UUID.randomUUID());
+        jobItem.setJobId(jobItem.getId().toString());
+        jobItem.setJobName("BasicWash");
+        jobItem.setJobUpdatedDate(LocalDateTime.now().toString());
+        jobItems.add(jobItem);
         return Flux.just(jobItems);
     }
 
-    public Mono<PutItemResponse> saveJob(JobItem jobItem) {
+    public Mono<JobItem> saveJob(JobItem jobItem) {
 
         HashMap<String, AttributeValue> itemValues = new HashMap<String, AttributeValue>();
 
-        JobItem item =new JobItem(UUID.randomUUID(), jobItem.getJobName());
+        DynamoDbAsyncTable<JobItem> jobItemTable = this.dynamoDbEnhancedAsyncClient.table("JobItem", jobItemTableSchema);
 
-        itemValues.put("PK", AttributeValue.builder().s(item.getId().toString()).build());
-        itemValues.put("SK",AttributeValue.builder().s(item.getJobName()).build());
-
-        PutItemRequest request = PutItemRequest.builder()
-                .tableName("Jobs")
-                .item(itemValues)
-                .build();
+        jobItem.setId(UUID.randomUUID());
+        jobItem.setJobId(jobItem.getId().toString());
+        jobItem.setJobUpdatedDate(LocalDateTime.now().toString());
 
         try {
-
-            //https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/java_dynamodb_code_examples.html
-            CompletableFuture<PutItemResponse> response= this.dynamoDbAsyncClient.putItem(request);
-
-            return  Mono.fromFuture(response);
-
-
-
-            /*
-            future.handle((response, throwable)->{
-                if (response!=null){
-                    System.out.println("Updated DynamoDB record via this request: " + response);
-                    return response.attributes();
-                } else {
-                  RuntimeException cause = (RuntimeException) throwable.getCause();
-                  System.out.println(cause.getMessage());
-                  throw cause;
-                }
-            });
-            System.out.println(("Jobs was successfully uploaded"));
-            */
-
+            jobItemTable.putItem(jobItem);
+            System.out.println(("Job Item was successfully saved"));
+            return Mono.just(jobItem);
 
         }
         catch (Exception ex){
@@ -87,12 +67,16 @@ public class JobsRepositoryDynamoDB implements JobsRepository {
 
     public Mono<JobItem> findJobById(UUID id){
 
-        return Mono.just(new JobItem(UUID.randomUUID(), "BasicCleaning"));
+        JobItem jobItem=new JobItem();
+        jobItem.setId(UUID.randomUUID());
+        jobItem.setJobId(jobItem.getId().toString());
+        jobItem.setJobName("BasicCleaning");
+        jobItem.setJobUpdatedDate(LocalDateTime.now().toString());
+        return Mono.just(jobItem);
     }
 
 
     public void deleteJob(UUID id){
-
         return;
     }
 }

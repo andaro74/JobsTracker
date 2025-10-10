@@ -11,7 +11,7 @@ public interface JobsRepository {
 
     public Flux<List<JobItem>> findAllJobs();
 
-    public Mono<PutItemResponse> saveJob(JobItem item);
+    public Mono<JobItem> saveJob(JobItem item);
 
     public Mono<JobItem> findJobById(UUID id);
 

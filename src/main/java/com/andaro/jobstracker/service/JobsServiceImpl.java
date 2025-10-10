@@ -27,7 +27,7 @@ public class JobsServiceImpl implements JobsService {
     }
 
     public Mono<JobItemDTO> GetJob(UUID id){
-        JobItem jobItem = new JobItem(id,"Job" + id);
+        JobItem jobItem = new JobItem();
         return Mono.justOrEmpty(jobItemMapper.toDTO(jobItem));
 
     }
@@ -41,18 +41,19 @@ public class JobsServiceImpl implements JobsService {
     }
 
     public Mono<JobItemDTO> UpdateJob(UUID id, CreateJobItemDTO item){
-        JobItem jobItem=new JobItem(id, "Job" + id);
+        JobItem jobItem=new JobItem();
 
         return Mono.just(jobItemMapper.toDTO(jobItem));
     }
 
     public Mono<JobItemDTO> CreateJob(CreateJobItemDTO item){
         JobItem jobItem= jobItemMapper.toModel(item);
-        Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem).thenReturn(jobItem).doOnSuccess(jobItem1 ->
+        jobItem.setId(UUID.randomUUID());
+        Mono<JobItem> jobItemResult = this.jobsRepository.saveJob(jobItem).thenReturn(jobItem).doOnSuccess(x ->
                 {
-                    System.out.println("Publishing " + jobItem1);
+                    System.out.println("Publishing " + x);
                     //Publish the job event to listeners
-                    jobsEventPublisher.publishJobsCreatedEvent(UUID.randomUUID().toString(), jobItem1);
+                    jobsEventPublisher.publishJobsCreatedEvent(x.getId().toString(), x);
                 }
         );
 
