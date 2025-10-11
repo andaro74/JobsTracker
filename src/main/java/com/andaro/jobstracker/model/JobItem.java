@@ -39,7 +39,7 @@ public class JobItem {
         this.jobId= "JobNumber#" + value;
     }
 
-    @DynamoDbSortKey
+    //@DynamoDbSortKey
     public String getJobUpdatedDate() {return this.jobUpdatedDate;}
 
     public void setJobUpdatedDate(String value) {

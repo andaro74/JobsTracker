@@ -27,9 +27,8 @@ public class JobsServiceImpl implements JobsService {
     }
 
     public Mono<JobItemDTO> GetJob(UUID id){
-        JobItem jobItem = new JobItem();
-        return Mono.justOrEmpty(jobItemMapper.toDTO(jobItem));
-
+        Mono<JobItem> jobItem=this.jobsRepository.findJobById(id);
+        return jobItem.map(jobItemMapper::toDTO);
     }
 
     public Flux<List<JobItemDTO>> GetAllJobs(){
