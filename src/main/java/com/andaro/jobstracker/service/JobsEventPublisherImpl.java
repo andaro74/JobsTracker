@@ -21,16 +21,17 @@ public class JobsEventPublisherImpl implements JobsEventPublisher {
         String jobId,
         String jobName,
         String jobDescription,
+        String customerName,
         String jobStatus,
         Instant createdOn
     ) {};
 
     public void publishJobsCreatedEvent(String key, JobItem jobItem){
         try {
-            //JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(jobItem.getJobName(),jobItem.getJobDescription());
             JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(
                     jobItem.getJobId(),
                     jobItem.getJobName(),
+                    jobItem.getCustomerName(),
                     jobItem.getJobDescription(),
                     jobItem.getJobStatus(),
                     jobItem.getCreatedOn()

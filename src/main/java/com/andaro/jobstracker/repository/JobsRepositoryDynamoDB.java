@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.PagePublisher;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -36,19 +37,29 @@ public class JobsRepositoryDynamoDB implements JobsRepository {
     public Flux<List<JobItem>> findAllJobs(){
         List<JobItem> jobItems = new ArrayList<JobItem>();
 
-        JobItem jobItem=new JobItem();
-        jobItem.setId(UUID.randomUUID());
-        jobItem.setJobId(jobItem.getId().toString());
-        jobItem.setJobName("BasicWash");
-        jobItem.setJobUpdatedDate(LocalDateTime.now().toString());
-        jobItems.add(jobItem);
+        PagePublisher<JobItem> results = jobItemTable.scan();
+        results.subscribe(x-> x
+                .items().stream()
+                .forEach(item-> {
+                        System.out.println(item.getJobId());
+                        JobItem jobItem=new JobItem();
+                        jobItem.setId(item.getId());
+                        jobItem.setJobId(item.getJobId());
+                        jobItem.setJobName(item.getJobName());
+                        jobItem.setCustomerName(item.getCustomerName());
+                        jobItem.setJobDescription(item.getJobDescription());
+                        jobItem.setJobUpdatedDate(item.getJobUpdatedDate());
+                        jobItem.setCreatedOn(item.getCreatedOn());
+                        jobItem.setJobStatus(item.getJobStatus());
+                        jobItems.add(jobItem);
+                        }
+                )
+                )
+                .join();
         return Flux.just(jobItems);
     }
 
     public Mono<JobItem> saveJob(JobItem jobItem) {
-
-        HashMap<String, AttributeValue> itemValues = new HashMap<String, AttributeValue>();
-
         jobItem.setId(UUID.randomUUID());
         jobItem.setJobId(jobItem.getId().toString());
         jobItem.setJobUpdatedDate(LocalDateTime.now().toString());
