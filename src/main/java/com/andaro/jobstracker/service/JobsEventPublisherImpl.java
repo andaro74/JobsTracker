@@ -31,8 +31,8 @@ public class JobsEventPublisherImpl implements JobsEventPublisher {
             JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(
                     jobItem.getJobId(),
                     jobItem.getJobName(),
-                    jobItem.getCustomerName(),
                     jobItem.getJobDescription(),
+                    jobItem.getCustomerName(),
                     jobItem.getJobStatus(),
                     jobItem.getCreatedOn()
             );
