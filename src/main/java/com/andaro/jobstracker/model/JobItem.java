@@ -4,7 +4,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,15 +13,15 @@ public class JobItem {
 
     private UUID id;
     private String jobId;
-    private  String jobName;
-    private  String jobDescription;
-    private  String assignedTo;
-    private  String customerName;
-    private  String jobStatus;
-    //private Date expectedCompletion;
-    //private  Date actualCompletion;
-    //private  Date createdOn;
-    //private  Date modifiedOn;
+    private String jobName;
+    private String jobDescription;
+    private String assignedTo;
+    private String customerName;
+    private String jobStatus;
+    private Instant expectedCompletion;
+    private Instant actualCompletion;
+    private Instant createdOn;
+    private Instant modifiedOn;
     private String jobUpdatedDate;
 
     public UUID getId(){
@@ -88,37 +88,37 @@ public class JobItem {
     }
 
 
-//    public Date getExpectedCompletion() {
-//        return this.expectedCompletion;
-//    }
-//
-//    public void setExpectedCompletion(Date value) {
-//        this.expectedCompletion = value;
-//    }
-//
-//    public Date getActualCompletion() {
-//        return this.actualCompletion;
-//    }
-//
-//    public void setActualCompletion(Date value) {
-//        this.actualCompletion = value;
-//    }
-//
-//    public Date getCreatedOn() {
-//        return this.createdOn;
-//    }
-//
-//    public void setCreatedOn(Date value) {
-//        this.createdOn = value;
-//    }
-//
-//    public Date getModifiedOn() {
-//        return this.modifiedOn;
-//    }
-//
-//    public void setModifiedOn(Date value) {
-//        this.modifiedOn = value;
-//    }
+    public Instant getExpectedCompletion() {
+        return this.expectedCompletion;
+    }
+
+    public void setExpectedCompletion(Instant value) {
+        this.expectedCompletion = value;
+    }
+
+    public Instant getActualCompletion() {
+        return this.actualCompletion;
+    }
+
+    public void setActualCompletion(Instant value) {
+        this.actualCompletion = value;
+    }
+
+    public Instant getCreatedOn() {
+        return this.createdOn;
+    }
+
+    public void setCreatedOn(Instant value) {
+        this.createdOn = value;
+    }
+
+    public Instant getModifiedOn() {
+        return this.modifiedOn;
+    }
+
+    public void setModifiedOn(Instant value) {
+        this.modifiedOn = value;
+    }
 
 
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @Repository
 public class JobsRepositoryDynamoDB implements JobsRepository {
 
+    private final String JOB_ITEM_KEY_PREFIX="JobNumber#";
     private final String JOB_ITEM_TABLE_NAME = "JobItem";
     private final DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient;
     private DynamoDbAsyncTable<JobItem> jobItemTable;
@@ -68,7 +69,7 @@ public class JobsRepositoryDynamoDB implements JobsRepository {
 
     public Mono<JobItem> findJobById(UUID id){
 
-        String jobItemKey="JobNumber#" + id.toString();
+        String jobItemKey= JOB_ITEM_KEY_PREFIX + id.toString();
         System.out.println("JobItemKey is " + jobItemKey);
         System.out.println("Find Job By Id: " + id.toString());
         try {
@@ -85,8 +86,16 @@ public class JobsRepositoryDynamoDB implements JobsRepository {
         }
     }
 
-
     public void deleteJob(UUID id){
-        return;
+        String jobItemKey=JOB_ITEM_KEY_PREFIX + id.toString();
+        CompletableFuture<JobItem> future = this.jobItemTable.deleteItem(Key.builder().partitionValue(jobItemKey).build());
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                System.out.println("Completed Deleting Item");
+            }
+            else {
+                System.out.println("Failed Deleting Item");
+            }
+        });
     }
 }
