@@ -1,11 +1,13 @@
 package com.andaro.jobstracker.service;
 
+import com.andaro.jobstracker.events.JobItemCreateEvent;
 import com.andaro.jobstracker.model.JobItem;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+
 
 @Service
 public class JobsEventPublisherImpl implements JobsEventPublisher {
@@ -17,15 +19,6 @@ public class JobsEventPublisherImpl implements JobsEventPublisher {
         this.kafkaTemplate=kafkaTemplate;
     }
 
-    public record JobItemCreateEvent(
-        String jobId,
-        String jobName,
-        String jobDescription,
-        String customerName,
-        String jobStatus,
-        Instant createdOn
-    ) {};
-
     public void publishJobsCreatedEvent(String key, JobItem jobItem){
         try {
             JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(
@@ -36,7 +29,7 @@ public class JobsEventPublisherImpl implements JobsEventPublisher {
                     jobItem.getJobStatus(),
                     jobItem.getCreatedOn()
             );
-            CompletableFuture<SendResult<String,JobItemCreateEvent>> future= kafkaTemplate.send(JOBS_TOPIC, key, itemCreateEvent);
+            CompletableFuture<SendResult<String, JobItemCreateEvent>> future= kafkaTemplate.send(JOBS_TOPIC, key, itemCreateEvent);
             future.whenComplete((result, ex) -> {
                if (ex == null) {
                    System.out.println("Completed Sending to Kafka");
