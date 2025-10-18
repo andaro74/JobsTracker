@@ -1,10 +1,11 @@
 ## Jobs Tracker Spring WebFlux Project
 
-Demonstrate a Jobs Tracker REST application using Spring WebFlux and JAVA including a suggested folder solution to separate layers.
+Demonstrate a Jobs Tracker REST application via Spring WebFlux, DynamoDB and Kafka.
 
+#### REST APIs
 ![img_8.png](img_8.png)
 
-## Solution Structure
+#### Solution Structure
 
 ![img_9.png](img_9.png)
 
