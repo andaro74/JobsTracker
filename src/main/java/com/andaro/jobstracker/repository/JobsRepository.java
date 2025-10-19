@@ -16,7 +16,4 @@ public interface JobsRepository {
 
     public void deleteJob(UUID id);
 
-
-
-
 }

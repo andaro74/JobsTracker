@@ -1,5 +1,6 @@
 package com.andaro.jobstracker.model;
 
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
@@ -14,8 +15,10 @@ public class Contractor {
     private String contractorId;
     private String firstName;
     private String lastName;
+    private String specialty;
     private String companyName;
     private String licenseNumber;
+    private String zipCode;
     private Instant createdOn;
     private Instant modifiedOn;
 
@@ -28,18 +31,12 @@ public class Contractor {
     }
 
     @DynamoDbPartitionKey
+    @DynamoDbAttribute("contractorId")
     public String getContractorId() { return contractorId; }
 
     public void setContractorId(String value) {
         this.contractorId= "ContractorNumber#" + value;
     }
-
-    //@DynamoDbSortKey
-    //public String getJobUpdatedDate() {return this.jobUpdatedDate;}
-
-    //public void setJobUpdatedDate(String value) {
-   //      this.jobUpdatedDate="JobUpdatedDate#" + value;
-    //}
 
     public String getFirstName(){
         return this.firstName;
@@ -58,6 +55,10 @@ public class Contractor {
         this.lastName=value;
     }
 
+    public void setSpecialty(String value) { this.specialty=value; }
+
+    public String getSpecialty(){ return this.specialty; }
+
     public String getCompanyName(){
         return companyName;
     }
@@ -74,6 +75,9 @@ public class Contractor {
         this.licenseNumber=value;
     }
 
+    public void setZipCode(String value) { this.zipCode=value; }
+
+    public String getZipCode() { return this.zipCode; }
 
     public Instant getCreatedOn() {
         return this.createdOn;

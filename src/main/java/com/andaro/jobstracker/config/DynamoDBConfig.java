@@ -9,6 +9,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbAsyncWaiter;
 
 
 import java.net.URI;
@@ -22,7 +23,6 @@ public class DynamoDBConfig {
 
         logger.info("************************************************************");
         logger.info("Setting DynamoDBConfig DynamoDBAsyncClient configuration.");
-        //Reference https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/ddb-en-client-getting-started-dynamodbTable.html
         logger.info("************************************************************");
 
         return DynamoDbAsyncClient.builder()
@@ -37,28 +37,23 @@ public class DynamoDBConfig {
 
 
     @Bean
-    public DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient(){
-
-        logger.info("************************************************************");
-        logger.info("Setting DynamoDBConfig DynamoDBAsyncClient configuration.");
-        //Reference https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/ddb-en-client-getting-started-dynamodbTable.html
-        logger.info("************************************************************");
-
-        DynamoDbAsyncClient dynamoDbAsyncClient = DynamoDbAsyncClient.builder()
-                .endpointOverride(URI.create("http://dynamodb-local:8000")) //local DynamoDB
-                .region(Region.US_WEST_2)
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create("dummy", "dummy")
-                ))
-                .build();
-
+    public DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient(DynamoDbAsyncClient client){
         logger.info("************************************************************");
         logger.info("Setting DynamoDbEnhancedAsyncClient.");
         logger.info("************************************************************");
         return DynamoDbEnhancedAsyncClient
                 .builder()
-                .dynamoDbClient(dynamoDbAsyncClient)
+                .dynamoDbClient(client)
                 .build();
 
+    }
+
+    @Bean
+    public DynamoDbAsyncWaiter dynamoDbAsyncWaiter(DynamoDbAsyncClient client){
+        //The waiter is a utility of the base client
+        logger.info("************************************************************");
+        logger.info("Executing dynamoDbAsyncWaiter.");
+        logger.info("************************************************************");
+        return client.waiter();
     }
 }

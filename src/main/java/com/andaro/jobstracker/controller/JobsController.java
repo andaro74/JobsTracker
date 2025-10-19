@@ -13,7 +13,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/jobs")
+@RequestMapping("/api/jobs")
 public class JobsController {
 
     private final JobsService service;
@@ -23,19 +23,19 @@ public class JobsController {
     }
 
     @GetMapping
-    public Flux<List<JobItemDTO>> GetJobs(){
+    public Flux<List<JobItemDTO>> getJobs(){
         return service.GetAllJobs();
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<JobItemDTO>> GetJob(@PathVariable UUID id){
+    public Mono<ResponseEntity<JobItemDTO>> getJob(@PathVariable UUID id){
         return service.GetJob(id)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.OK))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<JobItemDTO>> UpdateJob(@PathVariable UUID id, @RequestBody CreateJobItemDTO item){
+    public Mono<ResponseEntity<JobItemDTO>> updateJob(@PathVariable UUID id, @RequestBody CreateJobItemDTO item){
         return service.UpdateJob(id, item)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.OK))
                 .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
@@ -43,14 +43,15 @@ public class JobsController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<JobItemDTO>> CreateJob(@RequestBody CreateJobItemDTO item){
+    public Mono<ResponseEntity<JobItemDTO>> createJob(@RequestBody CreateJobItemDTO item){
         return service.CreateJob(item)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.CREATED));
     }
 
 
     @DeleteMapping("/{id}")
-    public void DeleteJob(@PathVariable UUID id){
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteJob(@PathVariable UUID id){
         service.DeleteJob(id);
     }
 

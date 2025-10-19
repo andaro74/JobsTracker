@@ -2,29 +2,48 @@ package com.andaro.jobstracker.controller;
 
 import com.andaro.jobstracker.dto.ContractorDTO;
 import com.andaro.jobstracker.dto.CreateContractorDTO;
+import com.andaro.jobstracker.service.ContractorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
+import reactor.core.publisher.Flux;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/contractors")
+@RequestMapping("/api/contractors")
 public class ContractorsController {
 
-    public ContractorsController(){
+    private final ContractorService contractorService;
 
+    public ContractorsController(ContractorService contractorService){
+        this.contractorService=contractorService;
     }
 
     @PostMapping
-    public Mono<ResponseEntity<ContractorDTO>> CreateContractor(@RequestBody CreateContractorDTO input){
-        ContractorDTO contractor=new ContractorDTO(UUID.randomUUID(),input.firstName(),input.lastName(),input.specialty(),input.licenseNumber(),input.zipCode(), Instant.now(),Instant.now());
-        return Mono.just(new ResponseEntity<>(contractor, HttpStatus.CREATED));
+    public Mono<ResponseEntity<ContractorDTO>> createContractor(@RequestBody CreateContractorDTO createContractorDTO){
+
+        return contractorService.createContractor(createContractorDTO).map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.CREATED));
     }
+
+    @GetMapping
+    public Flux<List<ContractorDTO>> getContractors(){
+        return contractorService.getAllContractors();
+    }
+
+    @GetMapping("/{id}")
+    public Mono<ResponseEntity<ContractorDTO>> getContractor(@PathVariable UUID id){
+        return contractorService.getContractor(id)
+                .map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.OK))
+                .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<Void> deleteContractor(@PathVariable UUID id){
+        return contractorService.deleteContractor(id);
+    }
+
+
 
 }
