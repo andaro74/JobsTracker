@@ -1,9 +1,10 @@
 package com.andaro.jobstracker.dto;
 
 public record CreateContractorDTO(
-        String FirstName,
-        String LastName,
-        String Specialty,
-        String LicenseNumber,
-        String ZipCode
+        String firstName,
+        String lastName,
+        String companyName,
+        String specialty,
+        String licenseNumber,
+        String zipCode
 ) { }

@@ -1,5 +1,6 @@
 package com.andaro.jobstracker.initializer;
 
+import com.andaro.jobstracker.model.Contractor;
 import com.andaro.jobstracker.model.JobItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class DynamoDBInitializer implements ApplicationRunner {
     private final DynamoDbAsyncClient dynamoDbAsyncClient;
 
     static final TableSchema<JobItem> jobItemTableSchema = TableSchema.fromBean(JobItem.class);
+    static final TableSchema<Contractor> contractorTableSchema = TableSchema.fromBean(Contractor.class);
 
     public DynamoDBInitializer(DynamoDbAsyncClient dynamoDbAsyncClient, DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient){
         this.dynamoDbEnhancedAsyncClient=dynamoDbEnhancedAsyncClient;
@@ -40,6 +42,7 @@ public class DynamoDBInitializer implements ApplicationRunner {
             try {
 
                 DynamoDbAsyncTable<JobItem> jobItemTable = this.dynamoDbEnhancedAsyncClient.table("JobItem", jobItemTableSchema);
+                DynamoDbAsyncTable<JobItem> contractorTable = this.dynamoDbEnhancedAsyncClient.table("Contractor", jobItemTableSchema);
 
                 jobItemTable.createTable(builder -> builder
                         .provisionedThroughput(
@@ -49,6 +52,15 @@ public class DynamoDBInitializer implements ApplicationRunner {
                         .build())
                 );
 
+                contractorTable.createTable(builder -> builder
+                        .provisionedThroughput(
+                                ProvisionedThroughput.builder()
+                                        .readCapacityUnits(new Long(10))
+                                        .writeCapacityUnits(new Long(10))
+                                        .build())
+                );
+
+
                 try (DynamoDbAsyncWaiter waiter = DynamoDbAsyncWaiter.builder().client(this.dynamoDbAsyncClient).build()){
                     ResponseOrException<DescribeTableResponse> response = waiter
                             .waitUntilTableExists(builder -> builder.tableName("JobItem").build())
@@ -57,8 +69,15 @@ public class DynamoDBInitializer implements ApplicationRunner {
                             () -> new RuntimeException("JobItem table was not created")
                     );
                     logger.info("JobItem table was created");
-                }
 
+                    ResponseOrException<DescribeTableResponse> contractorResponse = waiter
+                            .waitUntilTableExists(builder -> builder.tableName("Contractor").build())
+                            .get().matched();
+                    DescribeTableResponse tableContractorDescription = contractorResponse.response().orElseThrow(
+                            () -> new RuntimeException("Contractor Response table was not created")
+                    );
+
+                }
 
 
             } catch (ResourceNotFoundException e){
