@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.PagePublisher;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -99,5 +99,15 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
             }
         });
         return  Mono.empty();
+    }
+    
+    public Flux<Contractor> findContractorsByZIPCode(String zipCode){
+        Expression filterExpression = Expression.builder()
+                .expression("zipCode = :zipCode")
+                .putExpressionValue(":zipCode", AttributeValue.builder().s(zipCode).build())
+                .build();
+
+        return Flux.from(contractorTable.scan(builder -> builder.filterExpression(filterExpression))
+                .items());
     }
 }

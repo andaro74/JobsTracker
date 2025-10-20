@@ -6,6 +6,7 @@ import com.andaro.jobstracker.mapper.ContractorMapper;
 import com.andaro.jobstracker.model.Contractor;
 import com.andaro.jobstracker.repository.ContractorRepository;
 
+import org.mockito.internal.invocation.RealMethod;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -68,6 +69,10 @@ public class ContractorServiceImpl implements ContractorService {
 
     public Mono<Void> deleteContractor(UUID id){
          return this.contractorRepository.deleteContractor(id);
+    }
+
+    public Flux<ContractorDTO> findContractorsByZIPCode(String zipCode){
+        return this.contractorRepository.findContractorsByZIPCode(zipCode).map(ContractorMapper::toDTO);
     }
 
 }

@@ -17,4 +17,6 @@ public interface ContractorRepository {
 
     public Mono<Void> deleteContractor(UUID id);
 
+    public Flux<Contractor> findContractorsByZIPCode(String zipCode);
+
 }

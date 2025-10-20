@@ -6,6 +6,7 @@ import com.andaro.jobstracker.service.ContractorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 import java.util.List;
@@ -44,6 +45,18 @@ public class ContractorsController {
         return contractorService.deleteContractor(id);
     }
 
+    @GetMapping("/search")
+    public Flux<ContractorDTO> searchContractors(@RequestParam(required = false) String zipCode){
+        return contractorService.findContractorsByZIPCode(zipCode);
+    }
+
+//    @GetMapping("/search")
+//    public Flux<ContractorDTO> searchContractors(
+//            @RequestParam(required = false) String name,
+//            @RequestParam(required = false) String zipCode,
+//            @RequestParam(required = false) String specialty) {
+//        return contractorService.searchContractors(name, zipCode, specialty);
+//    }
 
 
 }

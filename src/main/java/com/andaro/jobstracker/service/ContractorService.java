@@ -2,6 +2,7 @@ package com.andaro.jobstracker.service;
 
 import com.andaro.jobstracker.dto.ContractorDTO;
 import com.andaro.jobstracker.dto.CreateContractorDTO;
+import com.andaro.jobstracker.model.Contractor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,4 +20,6 @@ public interface ContractorService {
     public Mono<ContractorDTO> createContractor(CreateContractorDTO createContractorDTO);
 
     public Mono<Void> deleteContractor(UUID id);
+
+    public Flux<ContractorDTO> findContractorsByZIPCode(String zipCode);
 }
