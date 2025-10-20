@@ -1,6 +1,7 @@
 package com.andaro.jobstracker.initializer;
 
 import com.andaro.jobstracker.model.Contractor;
+import com.andaro.jobstracker.model.Customer;
 import com.andaro.jobstracker.model.JobItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +47,21 @@ public class DynamoDBInitializer implements ApplicationRunner {
         logger.info("************************************************************");
         String JOB_ITEM_TABLE_NAME="JobItem";
         String CONTRACTOR_TABLE_NAME="Contractor";
+        String CUSTOMER_TABLE_NAME="Customer";
 
         TableSchema<JobItem> jobItemTableSchema = TableSchema.fromBean(JobItem.class);
         TableSchema<Contractor> contractorTableSchema = TableSchema.fromBean(Contractor.class);
+        TableSchema<Customer> customerTableSchema = TableSchema.fromBean(Customer.class);
 
         DynamoDbAsyncTable<JobItem> jobItemTable = this.dynamoDbEnhancedAsyncClient.table(JOB_ITEM_TABLE_NAME, jobItemTableSchema);
         DynamoDbAsyncTable<Contractor> contractorTable = this.dynamoDbEnhancedAsyncClient.table(CONTRACTOR_TABLE_NAME, contractorTableSchema);
+        DynamoDbAsyncTable<Customer> customerTable = this.dynamoDbEnhancedAsyncClient.table(CUSTOMER_TABLE_NAME, customerTableSchema);
+
         Mono<Void> createContractor = createTableAndWait(contractorTable);
         Mono<Void> createJobItem = createTableAndWait(jobItemTable);
+        Mono<Void> createCustomer = createTableAndWait(customerTable);
 
-        Mono.when(createContractor, createJobItem)
+        Mono.when(createContractor, createJobItem, createCustomer)
                 .doOnSuccess(v->logger.info("All DynamoDB tables are initialized and ACTIVE."))
                 .doOnError(e->logger.error("Failed to initialize one or more tables", e))
                 .block();
