@@ -1,10 +1,6 @@
 package com.andaro.jobstracker.config;
 
-import com.andaro.jobstracker.events.ContractorCreateEvent;
 import com.andaro.jobstracker.events.JobItemCreateEvent;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -17,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

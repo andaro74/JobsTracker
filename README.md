@@ -3,7 +3,7 @@
 Demonstrate a Jobs Tracker REST application via Spring WebFlux, DynamoDB and Kafka.
 
 #### REST APIs
-![img_8.png](img_8.png)
+![img_11.png](img_11.png)
 
 #### Solution Structure
 
