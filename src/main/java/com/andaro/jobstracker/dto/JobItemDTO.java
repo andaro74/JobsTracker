@@ -5,6 +5,8 @@ import java.util.UUID;
 
 public record JobItemDTO(
         UUID id,
+        UUID catalogId,
+        UUID customerId,
         String jobName,
         String jobDescription,
         String assignedTo,

@@ -9,10 +9,17 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import com.andaro.jobstracker.service.JobItemEventOrchestrator;
 
 @Component
 public class JobItemEventsListener {
     private static final String JOBS_TOPIC = "jobs-created-event";
+
+    private final JobItemEventOrchestrator jobItemEventOrchestrator;
+
+    public JobItemEventsListener(JobItemEventOrchestrator jobItemEventOrchestrator){
+        this.jobItemEventOrchestrator = jobItemEventOrchestrator;
+    }
 
     @KafkaListener(
             topics = JOBS_TOPIC,
@@ -28,6 +35,9 @@ public class JobItemEventsListener {
         {
             System.out.println("onJobItemCreated: " + event);
             //TODO: Assign an available contractor and schedule work.
+
+            this.jobItemEventOrchestrator.processNewJobItem(event);
+
 
             ack.acknowledge();
 

@@ -10,8 +10,9 @@ import java.util.UUID;
 
 @DynamoDbBean
 public class JobItem {
-
     private UUID id;
+    private UUID catalogId;
+    private UUID customerId;
     private String jobId;
     private String jobName;
     private String jobDescription;
