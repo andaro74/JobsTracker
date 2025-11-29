@@ -4,42 +4,15 @@ import java.util.Date;
 
 public class JobItemRequest {
 
-    private  String jobName;
-    private  String jobDescription;
-    private  String assignedTo;
-    private  String customerName;
-    private  String jobStatus;
-    private  Date expectedCompletion;
-    private  Date actualCompletion;
-    private  Date createdOn;
-    private  Date modifiedOn;
+    private String jobDescription;
+    private JobStatus jobStatus;
+    private Date expectedCompletion;
+    private Date actualCompletion;
+    private Date createdOn;
+    private Date modifiedOn;
+    private Catalog catalog;
 
     public JobItemRequest(){}
-
-    public String getJobName(){
-        return jobName;
-    }
-
-    public void setJobName(String value){
-        this.jobName=value;
-    }
-
-
-    public String getAssignedTo(){
-        return assignedTo;
-    }
-
-    public void setAssignedTo(String value){
-        this.assignedTo=value;
-    }
-
-    public String getCustomerName(){
-        return customerName;
-    }
-
-    public void setCustomerName(String value){
-        this.customerName=value;
-    }
 
     public String getJobDescription(){
         return jobDescription;
@@ -49,14 +22,13 @@ public class JobItemRequest {
         this.jobDescription=value;
     }
 
-    public String getJobStatus(){
+    public JobStatus getJobStatus(){
         return this.jobStatus;
     }
 
-    public void setJobStatus(String value){
+    public void setJobStatus(JobStatus value){
         this.jobStatus=value;
     }
-
 
     public Date getExpectedCompletion(){
         return this.expectedCompletion;
@@ -89,5 +61,9 @@ public class JobItemRequest {
     public void setModifiedOn(Date value){
         this.modifiedOn=value;
     }
+
+    public Catalog getCatalog() { return catalog; }
+
+    public void setCatalog(Catalog catalog) { this.catalog = catalog; }
 
 }

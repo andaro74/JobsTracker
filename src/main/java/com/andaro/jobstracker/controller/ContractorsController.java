@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/contractors")
@@ -25,7 +24,8 @@ public class ContractorsController {
     @PostMapping
     public Mono<ResponseEntity<ContractorDTO>> createContractor(@RequestBody CreateContractorDTO createContractorDTO){
 
-        return contractorService.createContractor(createContractorDTO).map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.CREATED));
+        return contractorService.createContractor(createContractorDTO)
+                .map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.CREATED));
     }
 
     @GetMapping
@@ -33,16 +33,23 @@ public class ContractorsController {
         return contractorService.getAllContractors();
     }
 
-    @GetMapping("/{id}")
-    public Mono<ResponseEntity<ContractorDTO>> getContractor(@PathVariable UUID id){
-        return contractorService.getContractor(id)
+    /**
+     * Retrieve a contractor by its string business identifier (contractorId),
+     * e.g. "CON-0001".
+     */
+    @GetMapping("/{contractorId}")
+    public Mono<ResponseEntity<ContractorDTO>> getContractor(@PathVariable String contractorId){
+        return contractorService.getContractor(contractorId)
                 .map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.OK))
                 .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
     }
 
-    @DeleteMapping("/{id}")
-    public Mono<Void> deleteContractor(@PathVariable UUID id){
-        return contractorService.deleteContractor(id);
+    /**
+     * Delete a contractor by its string business identifier (contractorId).
+     */
+    @DeleteMapping("/{contractorId}")
+    public Mono<Void> deleteContractor(@PathVariable String contractorId){
+        return contractorService.deleteContractor(contractorId);
     }
 
     @GetMapping("/search")

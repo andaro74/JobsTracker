@@ -1,7 +1,6 @@
 package com.andaro.jobstracker.repository;
 
 import com.andaro.jobstracker.model.Contractor;
-import com.andaro.jobstracker.model.JobItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -9,17 +8,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.PagePublisher;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Repository
@@ -37,35 +33,42 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
     }
 
     public Flux<List<Contractor>> findAllContractors(){
-        List<Contractor> contractors = new ArrayList<Contractor>();
+        List<Contractor> contractors = new ArrayList<>();
 
         PagePublisher<Contractor> results = contractorTable.scan();
         results.subscribe(x-> x
-                .items().stream()
-                .forEach(item-> {
+                .items().forEach(item-> {
                         System.out.println(item.getContractorId());
                         Contractor contractor=new Contractor();
-                        contractor.setId(item.getId());
+                        contractor.setContractorId(item.getContractorId());
+                        contractor.setPk(item.getPk());
+                        contractor.setSk(item.getSk());
                         contractor.setFirstName(item.getFirstName());
                         contractor.setLastName(item.getLastName());
                         contractor.setCompanyName(item.getCompanyName());
                         contractor.setLicenseNumber(item.getLicenseNumber());
-                        contractor.setSpecialty(item.getSpecialty());
+                        contractor.setTradeType(item.getTradeType());
                         contractor.setZipCode(item.getZipCode());
+                        contractor.setAddress(item.getAddress());
+                        contractor.setAddress2(item.getAddress2());
+                        contractor.setCity(item.getCity());
+                        contractor.setState(item.getState());
+                        contractor.setCountry(item.getCountry());
+                        contractor.setEmailAddress(item.getEmailAddress());
+                        contractor.setPhoneNumber(item.getPhoneNumber());
                         contractor.setCreatedOn(item.getCreatedOn());
                         contractor.setModifiedOn(item.getModifiedOn());
 
                         contractors.add(contractor);
                         }
                 )
-                )
-                .join();
+        ).join();
         return Flux.just(contractors);
     }
 
     public Mono<Contractor> saveContractor(Contractor contractor) {
-        contractor.setId(UUID.randomUUID());
-        contractor.setContractorId(contractor.getId().toString());
+        // If contractorId is not yet set, the service should provide it via setContractorId.
+        // Here we only ensure timestamps are updated.
         contractor.setModifiedOn(Instant.now());
         System.out.println("Saving Contractor: " + contractor);
 
@@ -76,20 +79,24 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
                 });
     }
 
-    public Mono<Contractor> findContractorById(UUID id){
+    public Mono<Contractor> findContractorById(String contractorId){
 
-        String contractorKey= CONTRACTOR_KEY_PREFIX + id.toString();
+        String contractorKey= CONTRACTOR_KEY_PREFIX + contractorId;
         System.out.println("ContractorKey is " + contractorKey);
-        System.out.println("Find Contractor By Id: " + id.toString());
-        CompletableFuture<Contractor> future = this.contractorTable.getItem(Key.builder().partitionValue(contractorKey).build());
-        Contractor contractor=future.join();
-        System.out.println("Retrieved Contractor: " + contractor);
-        return Mono.justOrEmpty(contractor);
+        System.out.println("Find Contractor By Id: " + contractorId);
+        CompletableFuture<Contractor> future = this.contractorTable.getItem(
+                Key.builder().partitionValue(contractorKey).build());
+        return Mono.fromFuture(future)
+                .then(Mono.justOrEmpty(future.join()))
+                .doOnError(DynamoDbException.class, e -> {
+                    System.err.println("Failed to get contractor: " + e.getMessage());
+                });
     }
 
-    public Mono<Void> deleteContractor(UUID id){
-        String contractorKey= CONTRACTOR_KEY_PREFIX + id.toString();
-        CompletableFuture<Contractor> future = this.contractorTable.deleteItem(Key.builder().partitionValue(contractorKey).build());
+    public Mono<Void> deleteContractor(String contractorId){
+        String contractorKey= CONTRACTOR_KEY_PREFIX + contractorId;
+        CompletableFuture<Contractor> future = this.contractorTable.deleteItem(
+                Key.builder().partitionValue(contractorKey).build());
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 System.out.println("Completed Deleting Contractor");

@@ -3,17 +3,16 @@ import com.andaro.jobstracker.model.Catalog;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.UUID;
-
 public interface CatalogRepository {
 
-    public Flux<List<Catalog>> findAllCatalogs();
+    Flux<Catalog> findAllCatalogs();
 
-    public Mono<Catalog> saveCatalog(Catalog catalog);
+    Mono<Catalog> saveCatalog(Catalog catalog);
 
-    public Mono<Catalog> findCatalogById(UUID id);
+    Mono<Catalog> findCatalogById(String catalogId);
 
-    public Mono<Void> deleteCatalog(UUID id);
+    Mono<Catalog> findCatalogById(String catalogId, String sortKeyPartial);
+
+    Mono<Void> deleteCatalog(String catalogId);
 
 }

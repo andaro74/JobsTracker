@@ -2,24 +2,22 @@ package com.andaro.jobstracker.service;
 
 import com.andaro.jobstracker.dto.ContractorDTO;
 import com.andaro.jobstracker.dto.CreateContractorDTO;
-import com.andaro.jobstracker.model.Contractor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface ContractorService {
 
-    public Mono<ContractorDTO> getContractor(UUID id);
+    Mono<ContractorDTO> getContractor(String contractorId);
 
-    public Flux<List<ContractorDTO>> getAllContractors();
+    Flux<List<ContractorDTO>> getAllContractors();
 
-    public Mono<ContractorDTO> updateContractor(UUID id, CreateContractorDTO createContractorDTO);
+    Mono<ContractorDTO> updateContractor(String contractorId, CreateContractorDTO createContractorDTO);
 
-    public Mono<ContractorDTO> createContractor(CreateContractorDTO createContractorDTO);
+    Mono<ContractorDTO> createContractor(CreateContractorDTO createContractorDTO);
 
-    public Mono<Void> deleteContractor(UUID id);
+    Mono<Void> deleteContractor(String contractorId);
 
-    public Flux<ContractorDTO> findContractorsByZIPCode(String zipCode);
+    Flux<ContractorDTO> findContractorsByZIPCode(String zipCode);
 }

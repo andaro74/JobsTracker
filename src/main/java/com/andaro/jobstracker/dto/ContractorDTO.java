@@ -1,16 +1,22 @@
 package com.andaro.jobstracker.dto;
 
 import java.time.Instant;
-import java.util.UUID;
 
 public record ContractorDTO(
-        UUID id,
+        String contractorId,
         String firstName,
         String lastName,
         String companyName,
-        String specialty,
+        TradeTypeDTO tradeType,
         String licenseNumber,
         String zipCode,
+        String address,
+        String address2,
+        String city,
+        String state,
+        String country,
+        String emailAddress,
+        String phoneNumber,
         Instant createdOn,
         Instant modifiedOn
 ) {

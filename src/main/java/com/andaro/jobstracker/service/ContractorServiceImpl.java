@@ -6,34 +6,35 @@ import com.andaro.jobstracker.mapper.ContractorMapper;
 import com.andaro.jobstracker.model.Contractor;
 import com.andaro.jobstracker.repository.ContractorRepository;
 
-import org.mockito.internal.invocation.RealMethod;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ContractorServiceImpl implements ContractorService {
 
     private final ContractorMapper ContractorMapper;
     private final ContractorRepository contractorRepository;
+    private final IdGeneratorService idGeneratorService;
     //private final ContractorEventPublisher contractorEventPublisher;
 
     public ContractorServiceImpl(
             ContractorMapper ContractorMapper,
-            ContractorRepository contractorRepository //,
+            ContractorRepository contractorRepository,
+            IdGeneratorService idGeneratorService//,
             //ContractorEventPublisher contractorEventPublisher){
     ){
         this.ContractorMapper = ContractorMapper;
         this.contractorRepository = contractorRepository;
+        this.idGeneratorService = idGeneratorService;
         //this.contractorEventPublisher = contractorEventPublisher;
     }
 
-    public Mono<ContractorDTO> getContractor(UUID id){
-        Mono<Contractor> Contractor=this.contractorRepository.findContractorById(id);
+    public Mono<ContractorDTO> getContractor(String contractorId){
+        Mono<Contractor> Contractor=this.contractorRepository.findContractorById(contractorId);
         return Contractor.map(ContractorMapper::toDTO);
     }
 
@@ -43,14 +44,17 @@ public class ContractorServiceImpl implements ContractorService {
         return Contractors.map(ContractorMapper::toDTOs);
     }
 
-    public Mono<ContractorDTO> updateContractor(UUID id, CreateContractorDTO createContractorDTO){
-        Contractor Contractor=new Contractor();
-        return Mono.just(ContractorMapper.toDTO(Contractor));
+    public Mono<ContractorDTO> updateContractor(String contractorId, CreateContractorDTO createContractorDTO){
+        // TODO: implement find + update semantics similar to customers/catalogs
+        Contractor contractor=new Contractor();
+        return Mono.just(ContractorMapper.toDTO(contractor));
     }
 
     public Mono<ContractorDTO> createContractor(CreateContractorDTO createContractorDTO){
         Contractor contractor= ContractorMapper.toModel(createContractorDTO);
-        contractor.setId(UUID.randomUUID());
+        // Generate business contractorId and let the model wire pk/sk
+        String newContractorId = idGeneratorService.createContractorId();
+        contractor.setContractorId(newContractorId);
         contractor.setCreatedOn(Instant.now());
         contractor.setModifiedOn(Instant.now());
 
@@ -58,7 +62,7 @@ public class ContractorServiceImpl implements ContractorService {
                 {
                     System.out.println("Publishing Contractor: " + x.getContractorId());
                     //Publish the Contractor event to listeners
-                    //ContractorsEventPublisher.publishContractorsCreatedEvent(x.getId().toString(), x);
+                    //ContractorsEventPublisher.publishContractorsCreatedEvent(x.getContractorId(), x);
                 }
         );
 
@@ -67,8 +71,8 @@ public class ContractorServiceImpl implements ContractorService {
         return contractorResult.map(ContractorMapper::toDTO);
     }
 
-    public Mono<Void> deleteContractor(UUID id){
-         return this.contractorRepository.deleteContractor(id);
+    public Mono<Void> deleteContractor(String contractorId){
+         return this.contractorRepository.deleteContractor(contractorId);
     }
 
     public Flux<ContractorDTO> findContractorsByZIPCode(String zipCode){

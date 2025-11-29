@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 import java.util.List;
-import java.util.UUID;
 
 
 @RestController
@@ -27,16 +26,16 @@ public class JobsController {
         return service.GetAllJobs();
     }
 
-    @GetMapping("/{id}")
-    public Mono<ResponseEntity<JobItemDTO>> getJob(@PathVariable UUID id){
-        return service.GetJob(id)
+    @GetMapping("/{jobId}")
+    public Mono<ResponseEntity<JobItemDTO>> getJob(@PathVariable String jobId){
+        return service.GetJob(jobId)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.OK))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping("/{id}")
-    public Mono<ResponseEntity<JobItemDTO>> updateJob(@PathVariable UUID id, @RequestBody CreateJobItemDTO item){
-        return service.UpdateJob(id, item)
+    @PutMapping("/{jobId}")
+    public Mono<ResponseEntity<JobItemDTO>> updateJob(@PathVariable String jobId, @RequestBody CreateJobItemDTO item){
+        return service.UpdateJob(jobId, item)
                 .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.OK))
                 .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
 
@@ -49,12 +48,11 @@ public class JobsController {
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{jobId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteJob(@PathVariable UUID id){
-        service.DeleteJob(id);
+    public void deleteJob(@PathVariable String jobId){
+        service.DeleteJob(jobId);
     }
 
 
 }
-

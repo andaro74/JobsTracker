@@ -5,7 +5,6 @@ import com.andaro.jobstracker.model.JobItem;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -23,9 +22,7 @@ public class JobsEventPublisherImpl implements JobsEventPublisher {
         try {
             JobItemCreateEvent itemCreateEvent=new JobItemCreateEvent(
                     jobItem.getJobId(),
-                    jobItem.getJobName(),
                     jobItem.getJobDescription(),
-                    jobItem.getCustomerName(),
                     jobItem.getJobStatus(),
                     jobItem.getCreatedOn()
             );

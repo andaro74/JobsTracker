@@ -6,17 +6,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface CustomerService {
 
-    public Mono<CustomerDTO> getCustomer(UUID id);
+    public Mono<CustomerDTO> getCustomer(String customerId);
 
     public Flux<List<CustomerDTO>> getAllCustomers();
 
-    public Mono<CustomerDTO> updateCustomer(UUID id, CreateCustomerDTO createCustomerDTO);
+    public Mono<CustomerDTO> updateCustomer(String customerId, CreateCustomerDTO createCustomerDTO);
 
     public Mono<CustomerDTO> createCustomer(CreateCustomerDTO createCustomerDTO);
 
-    public Mono<Void> deleteCustomer(UUID id);
+    public Mono<Void> deleteCustomer(String customerId);
 }

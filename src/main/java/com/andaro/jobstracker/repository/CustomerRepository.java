@@ -4,7 +4,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface CustomerRepository {
 
@@ -12,8 +11,8 @@ public interface CustomerRepository {
 
     public Mono<Customer> saveCustomer(Customer item);
 
-    public Mono<Customer> findCustomerById(UUID id);
+    public Mono<Customer> findCustomerById(String customerId);
 
-    public Mono<Void> deleteCustomer(UUID id);
+    public Mono<Void> deleteCustomer(String customerId);
 
 }

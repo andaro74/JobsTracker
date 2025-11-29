@@ -10,7 +10,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -28,21 +27,39 @@ public class CustomersController {
         return customerService.createCustomer(createCustomerDTO).map(CustomerDTO -> new ResponseEntity<>(CustomerDTO, HttpStatus.CREATED));
     }
 
+    /**
+     * Update a customer identified by its string business identifier (customerId),
+     * e.g. "CUST-0001". This is not a UUID.
+     */
+    @PutMapping("/{customerId}")
+    public Mono<ResponseEntity<CustomerDTO>> updateCustomer(@PathVariable String customerId, @RequestBody CreateCustomerDTO createCustomerDTO){
+        return customerService.updateCustomer(customerId, createCustomerDTO)
+                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @GetMapping
     public Flux<List<CustomerDTO>> getCustomers(){
         return customerService.getAllCustomers();
     }
 
-    @GetMapping("/{id}")
-    public Mono<ResponseEntity<CustomerDTO>> getCustomer(@PathVariable UUID id){
-        return customerService.getCustomer(id)
+    /**
+     * Retrieve a customer by its string business identifier (customerId),
+     * e.g. "CUST-0001".
+     */
+    @GetMapping("/{customerId}")
+    public Mono<ResponseEntity<CustomerDTO>> getCustomer(@PathVariable String customerId){
+        return customerService.getCustomer(customerId)
                 .map(CustomerDTO -> new ResponseEntity<>(CustomerDTO, HttpStatus.OK))
                 .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
     }
 
-    @DeleteMapping("/{id}")
-    public Mono<Void> deleteCustomer(@PathVariable UUID id){
-        return customerService.deleteCustomer(id);
+    /**
+     * Delete a customer by its string business identifier (customerId).
+     */
+    @DeleteMapping("/{customerId}")
+    public Mono<Void> deleteCustomer(@PathVariable String customerId){
+        return customerService.deleteCustomer(customerId);
     }
 
 

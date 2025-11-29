@@ -4,7 +4,14 @@ public record CreateContractorDTO(
         String firstName,
         String lastName,
         String companyName,
-        String specialty,
+        TradeTypeDTO tradeType,
         String licenseNumber,
-        String zipCode
+        String zipCode,
+        String address,
+        String address2,
+        String city,
+        String state,
+        String country,
+        String emailAddress,
+        String phoneNumber
 ) { }

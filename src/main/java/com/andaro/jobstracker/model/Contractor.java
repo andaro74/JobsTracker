@@ -6,36 +6,54 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
 
 @DynamoDbBean
 public class Contractor {
-    private UUID id;
+    // Physical keys in DynamoDB
+    private String pk;
+    private String sk;
+    // Business identifier
     private String contractorId;
     private String firstName;
     private String lastName;
-    private String specialty;
+    private TradeType tradeType;
     private String companyName;
     private String licenseNumber;
     private String zipCode;
+    private String address;
+    private String address2;
+    private String city;
+    private String state;
+    private String country;
+    private String emailAddress;
+    private String phoneNumber;
     private Instant createdOn;
     private Instant modifiedOn;
 
-    public UUID getId(){
-        return id;
-    }
-
-    public void setId(UUID value){
-        this.id=value;
-    }
-
+    // Partition key stored as attribute "pk"
     @DynamoDbPartitionKey
+    @DynamoDbAttribute("pk")
+    public String getPk() { return pk; }
+
+    public void setPk(String pk) { this.pk = pk; }
+
+    // Sort key stored as attribute "sk"
+    @DynamoDbSortKey
+    @DynamoDbAttribute("sk")
+    public String getSk() { return sk; }
+
+    public void setSk(String sk) { this.sk = sk; }
+
+    // Business contractor id; also drives pk
     @DynamoDbAttribute("contractorId")
     public String getContractorId() { return contractorId; }
 
     public void setContractorId(String value) {
-        this.contractorId= "ContractorNumber#" + value;
+        this.contractorId = value;
+        this.pk = "ContractorNumber#" + value;
+        if (this.sk == null) {
+            this.sk = "CONTRACTOR";
+        }
     }
 
     public String getFirstName(){
@@ -55,9 +73,9 @@ public class Contractor {
         this.lastName=value;
     }
 
-    public void setSpecialty(String value) { this.specialty=value; }
+    public TradeType getTradeType() { return tradeType; }
 
-    public String getSpecialty(){ return this.specialty; }
+    public void setTradeType(TradeType tradeType) { this.tradeType = tradeType; }
 
     public String getCompanyName(){
         return companyName;
@@ -78,6 +96,34 @@ public class Contractor {
     public void setZipCode(String value) { this.zipCode=value; }
 
     public String getZipCode() { return this.zipCode; }
+
+    public String getAddress() { return address; }
+
+    public void setAddress(String address) { this.address = address; }
+
+    public String getAddress2() { return address2; }
+
+    public void setAddress2(String address2) { this.address2 = address2; }
+
+    public String getCity() { return city; }
+
+    public void setCity(String city) { this.city = city; }
+
+    public String getState() { return state; }
+
+    public void setState(String state) { this.state = state; }
+
+    public String getCountry() { return country; }
+
+    public void setCountry(String country) { this.country = CountryDefaults.defaultIfBlank(country); }
+
+    public String getEmailAddress() { return emailAddress; }
+
+    public void setEmailAddress(String emailAddress) { this.emailAddress = emailAddress; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public Instant getCreatedOn() {
         return this.createdOn;

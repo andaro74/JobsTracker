@@ -16,7 +16,6 @@ import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Repository
@@ -34,35 +33,31 @@ public class CustomerRepositoryDynamoDB implements CustomerRepository {
     }
 
     public Flux<List<Customer>> findAllCustomers(){
-        List<Customer> customers = new ArrayList<Customer>();
+        List<Customer> customers = new ArrayList<>();
 
         PagePublisher<Customer> results = customerTable.scan();
         results.subscribe(x-> x
-                .items().stream()
-                .forEach(item-> {
-                        System.out.println(item.getCustomerId());
-                        Customer customer=new Customer();
-                        customer.setId(item.getId());
-                        customer.setFirstName(item.getFirstName());
-                        customer.setLastName(item.getLastName());
-                        customer.setAddress(item.getAddress());
-                        customer.setCity(item.getCity());
-                        customer.setState(item.getState());
-                        customer.setZipCode(item.getZipCode());
-                        customer.setCreatedOn(item.getCreatedOn());
-                        customer.setModifiedOn(item.getModifiedOn());
-
-                        customers.add(customer);
+                .items().forEach(item-> {
+                            System.out.println(item.getCustomerId());
+                            Customer customer=new Customer();
+                            customer.setCustomerId(item.getCustomerId());
+                            customer.setFirstName(item.getFirstName());
+                            customer.setLastName(item.getLastName());
+                            customer.setAddress(item.getAddress());
+                            customer.setCity(item.getCity());
+                            customer.setState(item.getState());
+                            customer.setZipCode(item.getZipCode());
+                            customer.setCreatedOn(item.getCreatedOn());
+                            customer.setModifiedOn(item.getModifiedOn());
+                            customers.add(customer);
                         }
                 )
-                )
-                .join();
+        ).join();
         return Flux.just(customers);
     }
 
     public Mono<Customer> saveCustomer(Customer customer) {
-        customer.setId(UUID.randomUUID());
-        customer.setCustomerId(customer.getId().toString());
+        // Ensure modified timestamp is current; createdOn managed in service
         customer.setModifiedOn(Instant.now());
         System.out.println("Saving Customer: " + customer);
 
@@ -73,26 +68,25 @@ public class CustomerRepositoryDynamoDB implements CustomerRepository {
                 });
     }
 
-    public Mono<Customer> findCustomerById(UUID id){
+    public Mono<Customer> findCustomerById(String customerId){
 
-        String customerKey= CUSTOMER_KEY_PREFIX + id.toString();
+        String customerKey= CUSTOMER_KEY_PREFIX + customerId;
         System.out.println("CustomerKey is " + customerKey);
-        System.out.println("Find Customer By Id: " + id.toString());
-        CompletableFuture<Customer> future = this.customerTable.getItem(Key.builder().partitionValue(customerKey).build());
-        //Customer customer=future.join();
-        //System.out.println("Retrieved Customer: " + customer);
-        //return Mono.justOrEmpty(customer);
+        System.out.println("Find Customer By Id: " + customerId);
+        CompletableFuture<Customer> future = this.customerTable.getItem(
+                Key.builder().partitionValue(customerKey).build());
 
         return Mono.fromFuture(future)
                 .then(Mono.just(future.join()))
                 .doOnError(DynamoDbException.class, e -> {
-                   System.err.println("Failed to get item: " + e.getMessage());
+                    System.err.println("Failed to get item: " + e.getMessage());
                 });
     }
 
-    public Mono<Void> deleteCustomer(UUID id){
-        String customerKey= CUSTOMER_KEY_PREFIX + id.toString();
-        CompletableFuture<Customer> future = this.customerTable.deleteItem(Key.builder().partitionValue(customerKey).build());
+    public Mono<Void> deleteCustomer(String customerId){
+        String customerKey= CUSTOMER_KEY_PREFIX + customerId;
+        CompletableFuture<Customer> future = this.customerTable.deleteItem(
+                Key.builder().partitionValue(customerKey).build());
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 System.out.println("Completed Deleting Customer");

@@ -11,62 +11,74 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerMapper customerMapper;
     private final CustomerRepository customerRepository;
-    //private final CustomerEventPublisher CustomerEventPublisher;
+    private final IdGeneratorService idGeneratorService;
 
     public CustomerServiceImpl(
             CustomerMapper customerMapper,
-            CustomerRepository customerRepository //,
-            //CustomerEventPublisher CustomerEventPublisher){
+            CustomerRepository customerRepository,
+            IdGeneratorService idGeneratorService
     ){
         this.customerMapper = customerMapper;
         this.customerRepository = customerRepository;
-        //this.CustomerEventPublisher = CustomerEventPublisher;
+        this.idGeneratorService = idGeneratorService;
     }
 
-    public Mono<CustomerDTO> getCustomer(UUID id){
-        Mono<Customer> customer=this.customerRepository.findCustomerById(id);
-        return customer.map(customerMapper::toDTO);
+    @Override
+    public Mono<CustomerDTO> getCustomer(String customerId){
+        return this.customerRepository.findCustomerById(customerId)
+                .map(customerMapper::toDTO);
     }
 
+    @Override
     public Flux<List<CustomerDTO>> getAllCustomers(){
-
         Flux<List<Customer>> customers = this.customerRepository.findAllCustomers();
         return customers.map(customerMapper::toDTOs);
     }
 
-    public Mono<CustomerDTO> updateCustomer(UUID id, CreateCustomerDTO createCustomerDTO){
-        Customer customer=new Customer();
-        return Mono.just(customerMapper.toDTO(customer));
+    @Override
+    public Mono<CustomerDTO> updateCustomer(String customerId, CreateCustomerDTO createCustomerDTO){
+        return this.customerRepository.findCustomerById(customerId)
+                .flatMap(existing -> {
+                    existing.setFirstName(createCustomerDTO.firstName());
+                    existing.setLastName(createCustomerDTO.lastName());
+                    existing.setAddress(createCustomerDTO.address());
+                    existing.setCity(createCustomerDTO.city());
+                    existing.setState(createCustomerDTO.state());
+                    existing.setZipCode(createCustomerDTO.zipCode());
+                    existing.setModifiedOn(Instant.now());
+                    return this.customerRepository.saveCustomer(existing);
+                })
+                .map(customerMapper::toDTO);
     }
 
+    @Override
     public Mono<CustomerDTO> createCustomer(CreateCustomerDTO createCustomerDTO){
         Customer customer= customerMapper.toModel(createCustomerDTO);
-        customer.setId(UUID.randomUUID());
+        // Generate business customerId and wire PK/SK via setter
+        String newCustomerId = idGeneratorService.createCustomerId();
+        customer.setCustomerId(newCustomerId);
         customer.setCreatedOn(Instant.now());
         customer.setModifiedOn(Instant.now());
 
         Mono<Customer> customerResult = this.customerRepository.saveCustomer(customer).thenReturn(customer).doOnSuccess(x ->
                 {
                     System.out.println("Publishing Customer: " + x.getCustomerId());
-                    //Publish the Customer event to listeners
-                    //CustomersEventPublisher.publishCustomersCreatedEvent(x.getId().toString(), x);
                 }
         );
-
 
         System.out.println("Returning from createCustomer service: " + customer.getCustomerId());
         return customerResult.map(customerMapper::toDTO);
     }
 
-    public Mono<Void> deleteCustomer(UUID id){
-         return this.customerRepository.deleteCustomer(id);
+    @Override
+    public Mono<Void> deleteCustomer(String customerId){
+         return this.customerRepository.deleteCustomer(customerId);
     }
 
 }

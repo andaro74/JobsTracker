@@ -1,35 +1,52 @@
 package com.andaro.jobstracker.model;
 
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @DynamoDbBean
 public class Catalog {
-
-    private UUID id;
     private String catalogId;
+    private String pk;
+    private String sk;
     private String catalogName;
     private String catalogDescription;
-    private Double hourlyRate;
+    private Double price;
+    private String sku;
+    private TradeType tradeType;
+    private PriceRateType priceRateType;
     private Instant createdOn;
     private Instant modifiedOn;
 
-    public UUID getId(){
-        return id;
-    }
-
-    public void setId(UUID value){
-        this.id=value;
-    }
 
     @DynamoDbPartitionKey
+    @DynamoDbAttribute("pk")
+    public String getPK() {
+        return pk;
+    }
+
+    public void setPK(String value) {
+        this.pk = value;
+    }
+
+    @DynamoDbSortKey
+    @DynamoDbAttribute("sk")
+    public String getSK() {
+        return sk;
+    }
+
+    public void setSK(String value) {
+        this.sk = value;
+    }
+
     public String getCatalogId() { return catalogId; }
 
     public void setCatalogId(String value) {
-        this.catalogId= "CatalogNumber#" + value;
+        this.catalogId= value;
     }
 
     public String getCatalogName(){
@@ -48,12 +65,32 @@ public class Catalog {
         this.catalogDescription=value;
     }
 
-    public Double getHourlyRate(){
-        return this.hourlyRate;
+    public Double getPrice(){
+        return this.price;
     }
 
-    public void setHourlyRate(Double value){
-        this.hourlyRate =value;
+    public void setPrice(Double value){
+        this.price = value;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public TradeType getTradeType() { return tradeType; }
+
+    public void setTradeType(TradeType tradeType) { this.tradeType = tradeType; }
+
+    public PriceRateType getPriceRateType() {
+        return priceRateType != null ? priceRateType : PriceRateType.PER_JOB;
+    }
+
+    public void setPriceRateType(PriceRateType priceRateType) {
+        this.priceRateType = priceRateType;
     }
 
     public Instant getCreatedOn() {

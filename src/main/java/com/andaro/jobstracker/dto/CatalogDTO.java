@@ -1,14 +1,16 @@
 package com.andaro.jobstracker.dto;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.UUID;
 
 public record CatalogDTO(
-        UUID id,
+        String catalogId,
         String catalogName,
         String catalogDescription,
-        Double hourlyRate,
+        Double price,
+        String sku,
+        TradeTypeDTO tradeType,
+        PriceRateTypeDTO priceRateType,
         Instant createdOn,
         Instant modifiedOn
 ) { }

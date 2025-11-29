@@ -1,12 +1,11 @@
 package com.andaro.jobstracker.events;
 
+import com.andaro.jobstracker.model.JobStatus;
 import java.time.Instant;
 
 public record JobItemCreateEvent(
         String jobId,
-        String jobName,
         String jobDescription,
-        String customerName,
-        String jobStatus,
+        JobStatus jobStatus,
         Instant createdOn
-) {};
+) {}

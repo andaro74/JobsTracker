@@ -1,9 +1,9 @@
 package com.andaro.jobstracker.dto;
 
-public record CreateCatalogDTO(
-        String catalogName,
+public record UpdateCatalogDTO(
         String catalogDescription,
         Double price,
         TradeTypeDTO tradeType,
         PriceRateTypeDTO priceRateType
-        ) { }
+) { }
+
