@@ -7,6 +7,7 @@ import com.andaro.jobstracker.service.CatalogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,37 +37,32 @@ public class CatalogController {
      * e.g. "CAT-0001".
      */
     @GetMapping("/{catalogId}")
-    public Mono<ResponseEntity<?>> getCatalog(@PathVariable String catalogId){
+    public Mono<ResponseEntity<CatalogDTO>> getCatalog(@PathVariable String catalogId){
         List<String> missingFields = validateCatalogId(catalogId);
         if (!missingFields.isEmpty()) {
-            return Mono.just(ResponseEntity.badRequest().body(Map.of(
-                    "message", "Missing required fields",
-                    "fields", missingFields
-            )));
+            return Mono.just(ResponseEntity.badRequest().body(null));
         }
         return service.getCatalog(catalogId)
-                .map(jobItem -> new ResponseEntity<>(jobItem, HttpStatus.OK))
-                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     /**
      * Update a catalog item identified by its string business identifier (catalogId).
      */
     @PutMapping("/{catalogId}")
-    public Mono<ResponseEntity<?>> updateCatalog(@PathVariable String catalogId, @Valid @RequestBody UpdateCatalogDTO item){
+    public Mono<ResponseEntity<CatalogDTO>> updateCatalog(@PathVariable String catalogId, @Valid @RequestBody UpdateCatalogDTO item){
         List<String> missingFields = new ArrayList<>(validateCatalogId(catalogId));
         if (item == null) {
             missingFields.add("requestBody");
         }
         if (!missingFields.isEmpty()) {
-            return Mono.just(ResponseEntity.badRequest().body(Map.of(
-                    "message", "Missing required fields",
-                    "fields", missingFields
-            )));
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Missing required fields: " + String.join(", ", missingFields)));
         }
         return service.updateCatalog(catalogId, item)
-                .map(catalogDTO -> new ResponseEntity<>(catalogDTO, HttpStatus.OK))
-                .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 
     }
 
