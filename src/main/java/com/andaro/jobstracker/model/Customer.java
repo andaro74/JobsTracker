@@ -31,16 +31,16 @@ public class Customer {
     // Partition key stored as attribute "pk"
     @DynamoDbPartitionKey
     @DynamoDbAttribute("pk")
-    public String getPk() { return pk; }
+    public String getPK() { return pk; }
 
-    public void setPk(String pk) { this.pk = pk; }
+    public void setPK(String pk) { this.pk = pk; }
 
     // Sort key stored as attribute "sk" (can be used for GSI or simple type marker)
     @DynamoDbSortKey
     @DynamoDbAttribute("sk")
-    public String getSk() { return sk; }
+    public String getSK() { return sk; }
 
-    public void setSk(String sk) { this.sk = sk; }
+    public void setSK(String sk) { this.sk = sk; }
 
     // Logical customer id; also drives pk value with the existing prefix convention
     @DynamoDbAttribute("customerId")
@@ -48,11 +48,6 @@ public class Customer {
 
     public void setCustomerId(String value) {
         this.customerId = value;
-        this.pk = "CustomerNumber#" + value;
-        // optional: keep a simple type marker in sk
-        if (this.sk == null) {
-            this.sk = "CUSTOMER";
-        }
     }
 
     public String getFirstName(){

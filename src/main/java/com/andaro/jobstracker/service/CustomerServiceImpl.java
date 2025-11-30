@@ -59,7 +59,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Mono<CustomerDTO> createCustomer(CreateCustomerDTO createCustomerDTO){
         Customer customer= customerMapper.toModel(createCustomerDTO);
-        // Generate business customerId and wire PK/SK via setter
         String newCustomerId = idGeneratorService.createCustomerId();
         customer.setCustomerId(newCustomerId);
         customer.setCreatedOn(Instant.now());

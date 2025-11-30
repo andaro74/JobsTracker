@@ -1,6 +1,7 @@
 package com.andaro.jobstracker.repository;
 
 import com.andaro.jobstracker.model.Customer;
+import com.andaro.jobstracker.service.IdGeneratorService;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,14 +17,26 @@ import java.util.concurrent.CompletableFuture;
 @Repository
 public class CustomerRepositoryDynamoDB implements CustomerRepository {
 
-    private final String CUSTOMER_KEY_PREFIX="CustomerNumber#";
+    private final String CUSTOMER_KEY_PREFIX="CUSTOMER#";
+
 
     private final DynamoDbAsyncTable<Customer> customerTable;
     static final TableSchema<Customer> customerTableSchema = TableSchema.fromBean(Customer.class);
+    private final IdGeneratorService idGeneratorService;
 
-    public CustomerRepositoryDynamoDB(DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient){
+    public CustomerRepositoryDynamoDB(DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient, IdGeneratorService idGeneratorService){
         String CUSTOMER_TABLE_NAME = "Customer";
         this.customerTable = dynamoDbEnhancedAsyncClient.table(CUSTOMER_TABLE_NAME, customerTableSchema);
+        this.idGeneratorService = idGeneratorService;
+    }
+
+
+    private String buildCustomerPk(String customerId) {
+        return DynamoKeyBuilder.buildPk(CUSTOMER_KEY_PREFIX, customerId);
+    }
+
+    private String buildCustomerSk(String state, String city, String zipCode) {
+        return DynamoKeyBuilder.createAddressSortKey(state,city,zipCode);
     }
 
     public Flux<Customer> findAllCustomers(){
@@ -50,8 +63,15 @@ public class CustomerRepositoryDynamoDB implements CustomerRepository {
     }
 
     public Mono<Customer> saveCustomer(Customer customer) {
-        // Ensure modified timestamp is current; createdOn managed in service
-        customer.setModifiedOn(Instant.now());
+        // Only assign ID and partition key if this is a new catalog
+        if (customer.getPK() == null) {
+            customer.setPK(buildCustomerPk(customer.getCustomerId()));
+            System.out.println("Customer PK: " + customer.getPK());
+        }
+
+        customer.setSK(buildCustomerSk(customer.getState(),customer.getCity(),customer.getZipCode()));
+        System.out.println("Customer SK: " + customer.getSK());
+
         System.out.println("Saving Customer: " + customer);
 
         return Mono.fromFuture(customerTable.putItem(customer))
