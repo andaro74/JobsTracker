@@ -5,13 +5,11 @@ import com.andaro.jobstracker.dto.CreateCustomerDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public interface CustomerService {
 
     public Mono<CustomerDTO> getCustomer(String customerId);
 
-    public Flux<List<CustomerDTO>> getAllCustomers();
+    public Flux<CustomerDTO> getAllCustomers();
 
     public Mono<CustomerDTO> updateCustomer(String customerId, CreateCustomerDTO createCustomerDTO);
 

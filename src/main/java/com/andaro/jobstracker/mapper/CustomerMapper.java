@@ -6,8 +6,6 @@ import com.andaro.jobstracker.model.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
 
@@ -19,8 +17,4 @@ public interface CustomerMapper {
     Customer toModel(CreateCustomerDTO createCustomerDTO);
 
     CustomerDTO toDTO(Customer customer);
-
-    List<CustomerDTO> toDTOs(List<Customer> customerList);
-
-    List<Customer> toModels(List<CustomerDTO> customerDTOList);
 }

@@ -10,7 +10,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -36,9 +35,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Flux<List<CustomerDTO>> getAllCustomers(){
-        Flux<List<Customer>> customers = this.customerRepository.findAllCustomers();
-        return customers.map(customerMapper::toDTOs);
+    public Flux<CustomerDTO> getAllCustomers(){
+        return this.customerRepository.findAllCustomers()
+                .map(customerMapper::toDTO);
     }
 
     @Override
