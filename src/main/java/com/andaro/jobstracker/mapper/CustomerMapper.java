@@ -1,7 +1,7 @@
 package com.andaro.jobstracker.mapper;
 
-import com.andaro.jobstracker.dto.CustomerDTO;
-import com.andaro.jobstracker.dto.CreateCustomerDTO;
+import com.andaro.jobstracker.dto.CustomerRequest;
+import com.andaro.jobstracker.dto.CustomerResponse;
 import com.andaro.jobstracker.model.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -12,9 +12,9 @@ public interface CustomerMapper {
     CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
 
     //@Mapping(target = "active", constant = "true") //default value
-    Customer toModel(CustomerDTO customerDTO);
+    Customer toModel(CustomerResponse customerResponse);
 
-    Customer toModel(CreateCustomerDTO createCustomerDTO);
+    Customer toModel(CustomerRequest customerRequest);
 
-    CustomerDTO toDTO(Customer customer);
+    CustomerResponse toDTO(Customer customer);
 }

@@ -2,7 +2,7 @@ package com.andaro.jobstracker.dto;
 
 import java.time.Instant;
 
-public record CustomerDTO(
+public record CustomerResponse(
         String customerId,
         String firstName,
         String lastName,

@@ -63,16 +63,6 @@ public class CustomerRepositoryDynamoDB implements CustomerRepository {
     }
 
     public Mono<Customer> saveCustomer(Customer customer) {
-        // Only assign ID and partition key if this is a new catalog
-        if (customer.getPK() == null) {
-            customer.setPK(buildCustomerPk(customer.getCustomerId()));
-            System.out.println("Customer PK: " + customer.getPK());
-        }
-
-        customer.setSK(buildCustomerSk(customer.getState(),customer.getCity(),customer.getZipCode()));
-        System.out.println("Customer SK: " + customer.getSK());
-
-        System.out.println("Saving Customer: " + customer);
 
         return Mono.fromFuture(customerTable.putItem(customer))
                 .then(Mono.just(customer))

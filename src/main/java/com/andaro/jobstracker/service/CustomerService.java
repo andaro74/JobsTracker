@@ -1,19 +1,19 @@
 package com.andaro.jobstracker.service;
 
-import com.andaro.jobstracker.dto.CustomerDTO;
-import com.andaro.jobstracker.dto.CreateCustomerDTO;
+import com.andaro.jobstracker.dto.CustomerRequest;
+import com.andaro.jobstracker.dto.CustomerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CustomerService {
 
-    public Mono<CustomerDTO> getCustomer(String customerId);
+    public Mono<CustomerResponse> getCustomer(String customerId);
 
-    public Flux<CustomerDTO> getAllCustomers();
+    public Flux<CustomerResponse> getAllCustomers();
 
-    public Mono<CustomerDTO> updateCustomer(String customerId, CreateCustomerDTO createCustomerDTO);
+    public Mono<CustomerResponse> updateCustomer(String customerId, CustomerRequest customerRequest);
 
-    public Mono<CustomerDTO> createCustomer(CreateCustomerDTO createCustomerDTO);
+    public Mono<CustomerResponse> createCustomer(CustomerRequest customerRequest);
 
     public Mono<Void> deleteCustomer(String customerId);
 }
