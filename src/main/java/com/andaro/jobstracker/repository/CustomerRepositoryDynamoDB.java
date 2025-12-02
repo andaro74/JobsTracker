@@ -1,6 +1,7 @@
 package com.andaro.jobstracker.repository;
 
 import com.andaro.jobstracker.model.Customer;
+import com.andaro.jobstracker.model.CustomerKeyFactory;
 import com.andaro.jobstracker.service.IdGeneratorService;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -9,6 +10,9 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
+import software.amazon.awssdk.enhanced.dynamodb.model.PagePublisher;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 import java.time.Instant;
@@ -22,21 +26,21 @@ public class CustomerRepositoryDynamoDB implements CustomerRepository {
 
     private final DynamoDbAsyncTable<Customer> customerTable;
     static final TableSchema<Customer> customerTableSchema = TableSchema.fromBean(Customer.class);
-    private final IdGeneratorService idGeneratorService;
+    private final CustomerKeyFactory customerKeyFactory;
 
-    public CustomerRepositoryDynamoDB(DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient, IdGeneratorService idGeneratorService){
+    public CustomerRepositoryDynamoDB(DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient, CustomerKeyFactory customerKeyFactory){
         String CUSTOMER_TABLE_NAME = "Customer";
         this.customerTable = dynamoDbEnhancedAsyncClient.table(CUSTOMER_TABLE_NAME, customerTableSchema);
-        this.idGeneratorService = idGeneratorService;
+        this.customerKeyFactory = customerKeyFactory;
     }
 
 
     private String buildCustomerPk(String customerId) {
-        return DynamoKeyBuilder.buildPk(CUSTOMER_KEY_PREFIX, customerId);
+        return customerKeyFactory.getPartitionKey(customerId);
     }
 
     private String buildCustomerSk(String state, String city, String zipCode) {
-        return DynamoKeyBuilder.createAddressSortKey(state,city,zipCode);
+        return customerKeyFactory.getSortKey(state, city, zipCode);
     }
 
     public Flux<Customer> findAllCustomers(){
@@ -73,31 +77,36 @@ public class CustomerRepositoryDynamoDB implements CustomerRepository {
 
     public Mono<Customer> findCustomerById(String customerId){
 
-        String customerKey= CUSTOMER_KEY_PREFIX + customerId;
-        System.out.println("CustomerKey is " + customerKey);
-        System.out.println("Find Customer By Id: " + customerId);
-        CompletableFuture<Customer> future = this.customerTable.getItem(
-                Key.builder().partitionValue(customerKey).build());
+        String partitionKey = buildCustomerPk(customerId);
+        QueryConditional conditional = QueryConditional.keyEqualTo(
+                Key.builder()
+                        .partitionValue(partitionKey)
+                        .build());
 
-        return Mono.fromFuture(future)
-                .then(Mono.just(future.join()))
+        PagePublisher<Customer> pagePublisher = customerTable.query(conditional);
+
+        return Flux.from(pagePublisher)
+                .flatMapIterable(Page::items)
+                .next()
                 .doOnError(DynamoDbException.class, e -> {
                     System.err.println("Failed to get item: " + e.getMessage());
                 });
     }
 
     public Mono<Void> deleteCustomer(String customerId){
-        String customerKey= CUSTOMER_KEY_PREFIX + customerId;
-        CompletableFuture<Customer> future = this.customerTable.deleteItem(
-                Key.builder().partitionValue(customerKey).build());
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
-                System.out.println("Completed Deleting Customer");
-            }
-            else {
-                System.out.println("Failed Deleting Customer");
-            }
-        });
-        return  Mono.empty();
+        return findCustomerById(customerId)
+                .flatMap(existing -> {
+                    Key key = Key.builder()
+                            .partitionValue(existing.getPK())
+                            .sortValue(existing.getSK())
+                            .build();
+                    return Mono.fromFuture(customerTable.deleteItem(key))
+                            .then()
+                            .doOnSuccess(ignored -> System.out.println("Completed Deleting Customer"));
+                })
+                .doOnError(DynamoDbException.class, e -> {
+                    System.err.println("Failed Deleting Customer: " + e.getMessage());
+                })
+                .then();
     }
 }

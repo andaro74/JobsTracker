@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -34,7 +35,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Mono<CustomerResponse> getCustomer(String customerId){
-        return this.customerRepository.findCustomerById(customerId)
+        String lookupId = Objects.requireNonNull(customerId, "customerId must not be null");
+        return this.customerRepository.findCustomerById(lookupId)
                 .map(customerMapper::toDTO);
     }
 
