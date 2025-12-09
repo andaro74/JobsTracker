@@ -2,6 +2,7 @@ package com.andaro.jobstracker.controller;
 
 import com.andaro.jobstracker.dto.CustomerRequest;
 import com.andaro.jobstracker.dto.CustomerResponse;
+import com.andaro.jobstracker.model.CustomerSearchCriteria;
 import com.andaro.jobstracker.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -50,6 +51,29 @@ public class CustomersController {
         return customerService.getAllCustomers();
     }
 
+    @GetMapping("/search")
+    public Flux<CustomerResponse> searchCustomers(@RequestParam(required = false) String firstName,
+                                                  @RequestParam(required = false) String lastName,
+                                                  @RequestParam(required = false) String zipCode,
+                                                  @RequestParam(required = false) String phoneNumber,
+                                                  @RequestParam(required = false) String emailAddress) {
+        try {
+            CustomerSearchCriteria criteria = CustomerSearchCriteria
+                    .from(firstName, lastName, zipCode, phoneNumber, emailAddress)
+                    .requireFilters();
+            return customerService.searchCustomers(criteria);
+        } catch (IllegalArgumentException ex) {
+            throw new SearchValidationException(ex.getMessage());
+        }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private static class SearchValidationException extends RuntimeException {
+        SearchValidationException(String message) {
+            super(message);
+        }
+    }
+
     /**
      * Retrieve a customer by its string business identifier (customerId),
      * e.g. "CUST-0001".
@@ -80,6 +104,14 @@ public class CustomersController {
         body.put("message", "Validation failed: required fields missing or invalid");
         body.put("errors", errors);
 
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(SearchValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleSearchValidationErrors(SearchValidationException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("message", ex.getMessage());
         return ResponseEntity.badRequest().body(body);
     }
 

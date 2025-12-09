@@ -5,6 +5,7 @@ import com.andaro.jobstracker.dto.CustomerResponse;
 import com.andaro.jobstracker.mapper.CustomerMapper;
 import com.andaro.jobstracker.model.Customer;
 import com.andaro.jobstracker.model.CustomerKeyFactory;
+import com.andaro.jobstracker.model.CustomerSearchCriteria;
 import com.andaro.jobstracker.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -50,14 +51,25 @@ public class CustomerServiceImpl implements CustomerService {
     public Mono<CustomerResponse> updateCustomer(String customerId, CustomerRequest customerRequest){
         return this.customerRepository.findCustomerById(customerId)
                 .flatMap(existing -> {
+                    String previousSortKey = existing.getSK();
                     existing.setFirstName(customerRequest.firstName());
                     existing.setLastName(customerRequest.lastName());
                     existing.setAddress(customerRequest.address());
+                    existing.setAddress2(customerRequest.address2());
                     existing.setCity(customerRequest.city());
                     existing.setState(customerRequest.state());
                     existing.setZipCode(customerRequest.zipCode());
+                    existing.setCountry(customerRequest.country());
+                    existing.setEmailAddress(customerRequest.emailAddress());
+                    existing.setPhoneNumber(customerRequest.phoneNumber());
+                    existing.setCompanyName(customerRequest.companyName());
+                    existing.setSK(customerKeyFactory.getSortKey(
+                            customerRequest.state(),
+                            customerRequest.city(),
+                            customerRequest.zipCode()
+                    ));
                     existing.setModifiedOn(Instant.now());
-                    return this.customerRepository.saveCustomer(existing);
+                    return this.customerRepository.updateCustomer(existing, previousSortKey);
                 })
                 .map(customerMapper::toDTO);
     }
@@ -84,6 +96,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Mono<Void> deleteCustomer(String customerId){
          return this.customerRepository.deleteCustomer(customerId);
+    }
+
+    @Override
+    public Flux<CustomerResponse> searchCustomers(CustomerSearchCriteria criteria) {
+        return customerRepository.searchCustomers(criteria)
+                .map(customerMapper::toDTO);
     }
 
 }

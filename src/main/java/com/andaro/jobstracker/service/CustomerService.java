@@ -2,6 +2,7 @@ package com.andaro.jobstracker.service;
 
 import com.andaro.jobstracker.dto.CustomerRequest;
 import com.andaro.jobstracker.dto.CustomerResponse;
+import com.andaro.jobstracker.model.CustomerSearchCriteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,4 +17,6 @@ public interface CustomerService {
     public Mono<CustomerResponse> createCustomer(CustomerRequest customerRequest);
 
     public Mono<Void> deleteCustomer(String customerId);
+
+    public Flux<CustomerResponse> searchCustomers(CustomerSearchCriteria criteria);
 }
