@@ -4,6 +4,7 @@ import com.andaro.jobstracker.dto.ContractorResponse;
 import com.andaro.jobstracker.dto.ContractorRequest;
 import com.andaro.jobstracker.mapper.ContractorMapper;
 import com.andaro.jobstracker.model.Contractor;
+import com.andaro.jobstracker.model.ContractorKeyFactory;
 import com.andaro.jobstracker.repository.ContractorRepository;
 
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class ContractorServiceImpl implements ContractorService {
@@ -19,14 +19,17 @@ public class ContractorServiceImpl implements ContractorService {
     private final ContractorMapper contractorMapper;
     private final ContractorRepository contractorRepository;
     private final IdGeneratorService idGeneratorService;
+    private final ContractorKeyFactory contractorKeyFactory;
 
     public ContractorServiceImpl(
             ContractorMapper contractorMapper,
             ContractorRepository contractorRepository,
-            IdGeneratorService idGeneratorService){
+            IdGeneratorService idGeneratorService,
+            ContractorKeyFactory contractorKeyFactory){
         this.contractorMapper = contractorMapper;
         this.contractorRepository = contractorRepository;
         this.idGeneratorService = idGeneratorService;
+        this.contractorKeyFactory = contractorKeyFactory;
     }
 
     public Mono<ContractorResponse> getContractor(String contractorId){
@@ -55,6 +58,14 @@ public class ContractorServiceImpl implements ContractorService {
                     existing.setEmailAddress(contractorRequest.emailAddress());
                     existing.setPhoneNumber(contractorRequest.phoneNumber());
                     existing.setModifiedOn(Instant.now());
+                    // rebuild keys based on current attributes
+                    existing.setPk(contractorKeyFactory.getPartitionKey(existing.getContractorId()));
+                    existing.setSk(contractorKeyFactory.getSortKey(
+                            contractorRequest.tradeType() != null ? contractorRequest.tradeType().name() : null,
+                            contractorRequest.state(),
+                            contractorRequest.city(),
+                            contractorRequest.zipCode()
+                    ));
                     return contractorRepository.saveContractor(existing)
                             .thenReturn(contractorMapper.toDTO(existing));
                 });
@@ -62,9 +73,16 @@ public class ContractorServiceImpl implements ContractorService {
 
     public Mono<ContractorResponse> createContractor(ContractorRequest contractorRequest){
         Contractor contractor = contractorMapper.toModel(contractorRequest);
-        // Generate business contractorId and let the model wire pk/sk
+        // Generate business contractorId and wire pk/sk
         String newContractorId = idGeneratorService.createContractorId();
         contractor.setContractorId(newContractorId);
+        contractor.setPk(contractorKeyFactory.getPartitionKey(newContractorId));
+        contractor.setSk(contractorKeyFactory.getSortKey(
+                contractorRequest.tradeType() != null ? contractorRequest.tradeType().name() : null,
+                contractorRequest.state(),
+                contractorRequest.city(),
+                contractorRequest.zipCode()
+        ));
         contractor.setCreatedOn(Instant.now());
         contractor.setModifiedOn(Instant.now());
 

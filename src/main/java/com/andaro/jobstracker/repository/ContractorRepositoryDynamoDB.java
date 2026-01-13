@@ -1,6 +1,7 @@
 package com.andaro.jobstracker.repository;
 
 import com.andaro.jobstracker.model.Contractor;
+import com.andaro.jobstracker.model.ContractorKeyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.PagePublisher;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
@@ -26,10 +28,16 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
 
     private final DynamoDbAsyncTable<Contractor> contractorTable;
     static final TableSchema<Contractor> contractorTableSchema = TableSchema.fromBean(Contractor.class);
+    private final ContractorKeyFactory contractorKeyFactory;
 
-    public ContractorRepositoryDynamoDB(DynamoDbAsyncClient dynamoDbAsyncClient, DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient){
+    public ContractorRepositoryDynamoDB(DynamoDbAsyncClient dynamoDbAsyncClient, DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient, ContractorKeyFactory contractorKeyFactory){
         String CONTRACTOR_TABLE_NAME = "Contractor";
         this.contractorTable = dynamoDbEnhancedAsyncClient.table(CONTRACTOR_TABLE_NAME, contractorTableSchema);
+        this.contractorKeyFactory = contractorKeyFactory;
+    }
+
+    private String buildContractorPk(String contractorId) {
+        return contractorKeyFactory.getPartitionKey(contractorId);
     }
 
     public Flux<Contractor> findAllContractors(){
@@ -52,31 +60,37 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
 
     public Mono<Contractor> findContractorById(String contractorId){
 
-        String contractorKey= CONTRACTOR_KEY_PREFIX + contractorId;
-        System.out.println("ContractorKey is " + contractorKey);
-        System.out.println("Find Contractor By Id: " + contractorId);
-        CompletableFuture<Contractor> future = this.contractorTable.getItem(
-                Key.builder().partitionValue(contractorKey).build());
-        return Mono.fromFuture(future)
-                .then(Mono.justOrEmpty(future.join()))
+        String partitionKey = buildContractorPk(contractorId);
+        QueryConditional conditional = QueryConditional.keyEqualTo(
+                Key.builder()
+                        .partitionValue(partitionKey)
+                        .build());
+
+        PagePublisher<Contractor> pagePublisher = contractorTable.query(conditional);
+
+        return Flux.from(pagePublisher)
+                .flatMapIterable(page -> page.items())
+                .next()
                 .doOnError(DynamoDbException.class, e -> {
                     System.err.println("Failed to get contractor: " + e.getMessage());
                 });
     }
 
     public Mono<Void> deleteContractor(String contractorId){
-        String contractorKey= CONTRACTOR_KEY_PREFIX + contractorId;
-        CompletableFuture<Contractor> future = this.contractorTable.deleteItem(
-                Key.builder().partitionValue(contractorKey).build());
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
-                System.out.println("Completed Deleting Contractor");
-            }
-            else {
-                System.out.println("Failed Deleting Contractor");
-            }
-        });
-        return  Mono.empty();
+        return findContractorById(contractorId)
+                .flatMap(existing -> {
+                    Key key = Key.builder()
+                            .partitionValue(existing.getPk())
+                            .sortValue(existing.getSk())
+                            .build();
+                    return Mono.fromFuture(contractorTable.deleteItem(key))
+                            .then()
+                            .doOnSuccess(ignored -> System.out.println("Completed Deleting Contractor"));
+                })
+                .doOnError(DynamoDbException.class, e -> {
+                    System.err.println("Failed Deleting Contractor: " + e.getMessage());
+                })
+                .then();
     }
     
     public Flux<Contractor> findContractorsByZIPCode(String zipCode){
