@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ContractorRepository {
 
-    Flux<List<Contractor>> findAllContractors();
+    Flux<Contractor> findAllContractors();
 
     Mono<Contractor> saveContractor(Contractor item);
 

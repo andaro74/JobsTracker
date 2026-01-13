@@ -64,7 +64,7 @@ Other endpoints:
 
 | Method | Path | Required body fields |
 | --- | --- | --- |
-| POST | `/api/contractors` | `CreateContractorDTO` with: `firstName`, `lastName`, `companyName`, `tradeType`, `zipCode`, `address`, `city`, `state`, `country`, `emailAddress`, `phoneNumber`. Optional: `address2`, `licenseNumber`. |
+| POST | `/api/contractors` | `ContractorRequest` with: `firstName`, `lastName`, `companyName`, `tradeType`, `zipCode`, `address`, `city`, `state`, `country`, `emailAddress`, `phoneNumber`. Optional: `address2`, `licenseNumber`. |
 
 Other endpoints:
 - `GET /api/contractors`

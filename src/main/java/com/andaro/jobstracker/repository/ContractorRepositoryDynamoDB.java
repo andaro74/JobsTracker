@@ -32,38 +32,9 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
         this.contractorTable = dynamoDbEnhancedAsyncClient.table(CONTRACTOR_TABLE_NAME, contractorTableSchema);
     }
 
-    public Flux<List<Contractor>> findAllContractors(){
-        List<Contractor> contractors = new ArrayList<>();
-
-        PagePublisher<Contractor> results = contractorTable.scan();
-        results.subscribe(x-> x
-                .items().forEach(item-> {
-                        System.out.println(item.getContractorId());
-                        Contractor contractor=new Contractor();
-                        contractor.setContractorId(item.getContractorId());
-                        contractor.setPk(item.getPk());
-                        contractor.setSk(item.getSk());
-                        contractor.setFirstName(item.getFirstName());
-                        contractor.setLastName(item.getLastName());
-                        contractor.setCompanyName(item.getCompanyName());
-                        contractor.setLicenseNumber(item.getLicenseNumber());
-                        contractor.setTradeType(item.getTradeType());
-                        contractor.setZipCode(item.getZipCode());
-                        contractor.setAddress(item.getAddress());
-                        contractor.setAddress2(item.getAddress2());
-                        contractor.setCity(item.getCity());
-                        contractor.setState(item.getState());
-                        contractor.setCountry(item.getCountry());
-                        contractor.setEmailAddress(item.getEmailAddress());
-                        contractor.setPhoneNumber(item.getPhoneNumber());
-                        contractor.setCreatedOn(item.getCreatedOn());
-                        contractor.setModifiedOn(item.getModifiedOn());
-
-                        contractors.add(contractor);
-                        }
-                )
-        ).join();
-        return Flux.just(contractors);
+    public Flux<Contractor> findAllContractors(){
+        // Stream scan results directly as Flux<Contractor>
+        return Flux.from(contractorTable.scan().items());
     }
 
     public Mono<Contractor> saveContractor(Contractor contractor) {

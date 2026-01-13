@@ -1,7 +1,7 @@
 package com.andaro.jobstracker.mapper;
 
-import com.andaro.jobstracker.dto.CreateContractorDTO;
-import com.andaro.jobstracker.dto.ContractorDTO;
+import com.andaro.jobstracker.dto.ContractorRequest;
+import com.andaro.jobstracker.dto.ContractorResponse;
 import com.andaro.jobstracker.dto.TradeTypeDTO;
 import com.andaro.jobstracker.model.Contractor;
 import com.andaro.jobstracker.model.TradeType;
@@ -15,12 +15,11 @@ public interface ContractorMapper {
 
     ContractorMapper INSTANCE = Mappers.getMapper(ContractorMapper.class);
 
-    //@Mapping(target = "active", constant = "true") //default value
-    Contractor toModel(ContractorDTO contractorDTO);
+    Contractor toModel(ContractorResponse contractorResponse);
 
-    Contractor toModel(CreateContractorDTO createContractorDTO);
+    Contractor toModel(ContractorRequest contractorRequest);
 
-    ContractorDTO toDTO(Contractor contractor);
+    ContractorResponse toDTO(Contractor contractor);
 
     // Enum conversions
     default TradeTypeDTO toDTO(TradeType tradeType) {
@@ -33,7 +32,7 @@ public interface ContractorMapper {
         return TradeType.valueOf(tradeTypeDTO.name());
     }
 
-    List<ContractorDTO> toDTOs(List<Contractor> contractorList);
+    List<ContractorResponse> toDTOs(List<Contractor> contractorList);
 
-    List<Contractor> toModels(List<ContractorDTO> contractorDTOList);
+    List<Contractor> toModels(List<ContractorResponse> contractorDTOList);
 }

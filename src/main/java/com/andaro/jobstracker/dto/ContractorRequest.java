@@ -1,6 +1,6 @@
 package com.andaro.jobstracker.dto;
 
-public record CreateContractorDTO(
+public record ContractorRequest(
         String firstName,
         String lastName,
         String companyName,

@@ -1,7 +1,7 @@
 package com.andaro.jobstracker.controller;
 
-import com.andaro.jobstracker.dto.ContractorDTO;
-import com.andaro.jobstracker.dto.CreateContractorDTO;
+import com.andaro.jobstracker.dto.ContractorResponse;
+import com.andaro.jobstracker.dto.ContractorRequest;
 import com.andaro.jobstracker.service.ContractorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +22,14 @@ public class ContractorsController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<ContractorDTO>> createContractor(@RequestBody CreateContractorDTO createContractorDTO){
+    public Mono<ResponseEntity<ContractorResponse>> createContractor(@RequestBody ContractorRequest contractorRequest){
 
-        return contractorService.createContractor(createContractorDTO)
+        return contractorService.createContractor(contractorRequest)
                 .map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.CREATED));
     }
 
     @GetMapping
-    public Flux<List<ContractorDTO>> getContractors(){
+    public Flux<ContractorResponse> getContractors(){
         return contractorService.getAllContractors();
     }
 
@@ -38,7 +38,7 @@ public class ContractorsController {
      * e.g. "CON-0001".
      */
     @GetMapping("/{contractorId}")
-    public Mono<ResponseEntity<ContractorDTO>> getContractor(@PathVariable String contractorId){
+    public Mono<ResponseEntity<ContractorResponse>> getContractor(@PathVariable String contractorId){
         return contractorService.getContractor(contractorId)
                 .map(contractorDTO -> new ResponseEntity<>(contractorDTO, HttpStatus.OK))
                 .defaultIfEmpty((new ResponseEntity<>(HttpStatus.NOT_FOUND)));
@@ -53,12 +53,12 @@ public class ContractorsController {
     }
 
     @GetMapping("/search")
-    public Flux<ContractorDTO> searchContractors(@RequestParam(required = false) String zipCode){
+    public Flux<ContractorResponse> searchContractors(@RequestParam(required = false) String zipCode){
         return contractorService.findContractorsByZIPCode(zipCode);
     }
 
 //    @GetMapping("/search")
-//    public Flux<ContractorDTO> searchContractors(
+//    public Flux<ContractorResponse> searchContractors(
 //            @RequestParam(required = false) String name,
 //            @RequestParam(required = false) String zipCode,
 //            @RequestParam(required = false) String specialty) {
