@@ -2,6 +2,7 @@ package com.andaro.jobstracker.repository;
 
 import com.andaro.jobstracker.model.Contractor;
 import com.andaro.jobstracker.model.ContractorKeyFactory;
+import com.andaro.jobstracker.model.ContractorSearchCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -101,5 +102,11 @@ public class ContractorRepositoryDynamoDB implements ContractorRepository {
 
         return Flux.from(contractorTable.scan(builder -> builder.filterExpression(filterExpression))
                 .items());
+    }
+
+    public Flux<Contractor> searchContractors(ContractorSearchCriteria criteria) {
+        // DynamoDB lacks rich querying across multiple optional filters without GSIs; using scan+filter on client.
+        return Flux.from(contractorTable.scan().items())
+                .filter(criteria::matches);
     }
 }

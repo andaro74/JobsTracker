@@ -5,6 +5,7 @@ import com.andaro.jobstracker.dto.ContractorRequest;
 import com.andaro.jobstracker.mapper.ContractorMapper;
 import com.andaro.jobstracker.model.Contractor;
 import com.andaro.jobstracker.model.ContractorKeyFactory;
+import com.andaro.jobstracker.model.ContractorSearchCriteria;
 import com.andaro.jobstracker.repository.ContractorRepository;
 
 import org.springframework.stereotype.Service;
@@ -107,4 +108,8 @@ public class ContractorServiceImpl implements ContractorService {
         return this.contractorRepository.findContractorsByZIPCode(zipCode).map(contractorMapper::toDTO);
     }
 
+    public Flux<ContractorResponse> searchContractors(ContractorSearchCriteria criteria) {
+        return this.contractorRepository.searchContractors(criteria)
+                .map(contractorMapper::toDTO);
+    }
 }

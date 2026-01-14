@@ -1,5 +1,7 @@
 package com.andaro.jobstracker.repository;
+
 import com.andaro.jobstracker.model.Contractor;
+import com.andaro.jobstracker.model.ContractorSearchCriteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,5 +18,7 @@ public interface ContractorRepository {
     Mono<Void> deleteContractor(String contractorId);
 
     Flux<Contractor> findContractorsByZIPCode(String zipCode);
+
+    Flux<Contractor> searchContractors(ContractorSearchCriteria criteria);
 
 }
